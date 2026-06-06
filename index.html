@@ -465,6 +465,14 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   animation: modal-in 0.2s ease;
 }
 @keyframes modal-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+/* === MASTER TABLE === */
+.master-table { width:100%; border-collapse:collapse; font-size:14px; }
+.master-table th { background:var(--bg); padding:10px 14px; text-align:left; font-size:12px; font-weight:600; color:var(--text-sub); border-bottom:2px solid var(--border); white-space:nowrap; }
+.master-table td { padding:12px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.master-table tr:last-child td { border-bottom:none; }
+.master-table tr:hover td { background:var(--bg); }
+.master-action-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.master-count { font-size:13px; color:var(--text-sub); }
 .modal-header {
   padding: 16px 20px;
   border-bottom: 1px solid var(--border);
@@ -775,7 +783,10 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
     <div class="app-header-title">問い合わせ管理</div>
     <div class="app-header-sub">社内向け・営業・コンサルタント用</div>
   </div>
-  <div style="display:flex;gap:8px">
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);color:white;font-size:12px" onclick="navigate('departments')">🏢 部署管理</button>
+    <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);color:white;font-size:12px" onclick="navigate('contacts')">👤 担当者管理</button>
+    <div style="width:1px;height:20px;background:rgba(255,255,255,0.25)"></div>
     <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);color:white" onclick="navigate('info')">ℹ️ ガイド</button>
     <button class="btn btn-secondary btn-sm" onclick="navigate('new')">＋ 新規登録</button>
   </div>
@@ -1167,10 +1178,147 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   </div>
 </div>
 
+<!-- SCREEN: DEPARTMENTS -->
+<div id="screen-departments" class="screen">
+  <div class="container" style="max-width:700px">
+    <div class="page-header">
+      <button class="back-btn" onclick="navigate('list')">← 一覧に戻る</button>
+      <h1 class="page-header-title">部署管理</h1>
+    </div>
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="master-action-bar" style="margin:0;width:100%">
+          <span class="master-count" id="dept-count"></span>
+          <button class="btn btn-primary btn-sm" onclick="openDeptModal()">＋ 部署を追加</button>
+        </div>
+      </div>
+      <div class="section-card-body" style="padding:0">
+        <table class="master-table">
+          <thead>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>部署名</th>
+              <th>担当者数</th>
+              <th style="width:100px">操作</th>
+            </tr>
+          </thead>
+          <tbody id="dept-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: CONTACTS -->
+<div id="screen-contacts" class="screen">
+  <div class="container" style="max-width:900px">
+    <div class="page-header">
+      <button class="back-btn" onclick="navigate('list')">← 一覧に戻る</button>
+      <h1 class="page-header-title">担当者管理</h1>
+    </div>
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="master-action-bar" style="margin:0;width:100%">
+          <span class="master-count" id="contact-count"></span>
+          <button class="btn btn-primary btn-sm" onclick="openContactModal()">＋ 担当者を追加</button>
+        </div>
+      </div>
+      <div class="section-card-body" style="padding:0">
+        <table class="master-table">
+          <thead>
+            <tr>
+              <th>氏名</th>
+              <th>部署</th>
+              <th>役職</th>
+              <th>メール</th>
+              <th>電話</th>
+              <th style="width:100px">操作</th>
+            </tr>
+          </thead>
+          <tbody id="contact-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEPT MODAL -->
+<div id="deptModal" class="modal-overlay" onclick="if(event.target===this)closeDeptModal()">
+  <div class="modal-box" style="max-width:400px">
+    <div class="modal-header">
+      <span class="modal-title" id="deptModalTitle">部署を追加</span>
+      <button class="modal-close" onclick="closeDeptModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">部署名 <span style="color:var(--danger)">*</span></label>
+        <input type="text" class="form-input" id="dept-name-input" placeholder="例: 経営企画部">
+        <span class="form-error" id="dept-name-err">部署名を入力してください</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDeptModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveDept()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div id="contactModal" class="modal-overlay" onclick="if(event.target===this)closeContactModal()">
+  <div class="modal-box" style="max-width:500px">
+    <div class="modal-header">
+      <span class="modal-title" id="contactModalTitle">担当者を追加</span>
+      <button class="modal-close" onclick="closeContactModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">氏名 <span style="color:var(--danger)">*</span></label>
+          <input type="text" class="form-input" id="cnt-name" placeholder="例: 田中 太郎">
+          <span class="form-error" id="cnt-name-err">氏名を入力してください</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">役職</label>
+          <input type="text" class="form-input" id="cnt-role" placeholder="例: 部長">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">部署</label>
+        <select class="form-input" id="cnt-group"></select>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">メール</label>
+          <input type="email" class="form-input" id="cnt-email" placeholder="example@abc.co.jp">
+        </div>
+        <div class="form-group">
+          <label class="form-label">電話</label>
+          <input type="text" class="form-input" id="cnt-phone" placeholder="03-xxxx-xxxx">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeContactModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveContact()">保存</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // === MOCK DATA ===
 const CLIENT_NAME = 'ABC株式会社';  // ← ここにエンドクライアント名を設定
-const GROUPS = ['経営企画部', 'IT推進室', '情報システム部', '事業推進部', 'DX推進部', '購買・調達部', '総務部', '製造管理部'];
+let GROUPS = ['経営企画部', 'IT推進室', '情報システム部', '事業推進部', 'DX推進部', '購買・調達部', '総務部', '製造管理部'];
+
+let CONTACTS_MASTER = [
+  { id: 'CNT-001', name: '木村 誠',   group: '経営企画部',   role: '部長',      email: 'kimura@abc.co.jp',     phone: '03-1111-2222' },
+  { id: 'CNT-002', name: '丸山 浩二', group: 'IT推進室',     role: '課長',      email: 'maruyama@abc.co.jp',   phone: '06-3333-4444' },
+  { id: 'CNT-003', name: '遠藤 早苗', group: '情報システム部', role: '主任',     email: 'endo@abc.co.jp',       phone: '011-555-6666' },
+  { id: 'CNT-004', name: '中島 博',   group: '事業推進部',   role: '部長代理',  email: 'nakajima@abc.co.jp',   phone: '045-777-8888' },
+  { id: 'CNT-005', name: '後藤 明子', group: 'DX推進部',     role: '取締役CIO', email: 'goto@abc.co.jp',       phone: '03-9999-0000' },
+  { id: 'CNT-006', name: '小林 哲也', group: '情報システム部', role: '担当者',   email: 'kobayashi@abc.co.jp',  phone: '052-123-4567' },
+  { id: 'CNT-007', name: '南部 正樹', group: '総務部',       role: '係長',      email: 'nanbu@abc.co.jp',      phone: '098-234-5678' },
+  { id: 'CNT-008', name: '渡辺 一哉', group: '購買・調達部', role: '担当者',    email: 'watanabe@abc.co.jp',   phone: '03-8888-7777' },
+];
 
 const CATEGORIES = {
   estimate_basis: '見積根拠確認',
@@ -1439,6 +1587,12 @@ function route() {
     initForm();
   } else if (hash === 'info') {
     document.getElementById('screen-info').classList.add('active');
+  } else if (hash === 'departments') {
+    document.getElementById('screen-departments').classList.add('active');
+    renderDepartments();
+  } else if (hash === 'contacts') {
+    document.getElementById('screen-contacts').classList.add('active');
+    renderContacts();
   } else if (hash.startsWith('detail/')) {
     const id = hash.replace('detail/', '');
     document.getElementById('screen-detail').classList.add('active');
@@ -2561,6 +2715,131 @@ function switchInfoTab(id, btn) {
   document.querySelectorAll('.info-tab').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
   btn.classList.add('active');
+}
+
+// === DEPARTMENTS ===
+let _deptEditIdx = null;
+
+function renderDepartments() {
+  const tbody = document.getElementById('dept-tbody');
+  document.getElementById('dept-count').textContent = `${GROUPS.length} 件`;
+  tbody.innerHTML = GROUPS.map((g, i) => {
+    const cnt = CONTACTS_MASTER.filter(c => c.group === g).length;
+    return `<tr>
+      <td style="color:var(--text-sub)">${i + 1}</td>
+      <td style="font-weight:600">${esc(g)}</td>
+      <td>${cnt > 0 ? `<span style="color:var(--primary);font-weight:600">${cnt} 名</span>` : '<span style="color:var(--text-sub)">0 名</span>'}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:3px 8px;margin-right:4px" onclick="openDeptModal(${i})">編集</button>
+        <button class="btn btn-sm" style="font-size:11px;padding:3px 8px;background:var(--danger);color:white;border:none;border-radius:var(--radius)" onclick="deleteDept(${i})">削除</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openDeptModal(idx) {
+  _deptEditIdx = (idx !== undefined) ? idx : null;
+  document.getElementById('deptModalTitle').textContent = _deptEditIdx !== null ? '部署を編集' : '部署を追加';
+  document.getElementById('dept-name-input').value = _deptEditIdx !== null ? GROUPS[_deptEditIdx] : '';
+  document.getElementById('dept-name-err').style.display = 'none';
+  document.getElementById('deptModal').classList.add('active');
+  setTimeout(() => document.getElementById('dept-name-input').focus(), 100);
+}
+
+function closeDeptModal() {
+  document.getElementById('deptModal').classList.remove('active');
+}
+
+function saveDept() {
+  const val = document.getElementById('dept-name-input').value.trim();
+  if (!val) { document.getElementById('dept-name-err').style.display = 'block'; return; }
+  if (_deptEditIdx !== null) {
+    const old = GROUPS[_deptEditIdx];
+    GROUPS[_deptEditIdx] = val;
+    CONTACTS_MASTER.forEach(c => { if (c.group === old) c.group = val; });
+  } else {
+    GROUPS.push(val);
+  }
+  closeDeptModal();
+  renderDepartments();
+  showToast(_deptEditIdx !== null ? '部署を更新しました' : '部署を追加しました', 'success');
+}
+
+function deleteDept(idx) {
+  const g = GROUPS[idx];
+  const cnt = CONTACTS_MASTER.filter(c => c.group === g).length;
+  if (cnt > 0 && !confirm(`「${g}」には担当者が ${cnt} 名います。削除しますか？`)) return;
+  GROUPS.splice(idx, 1);
+  renderDepartments();
+  showToast('部署を削除しました', 'success');
+}
+
+// === CONTACTS ===
+let _contactEditId = null;
+
+function renderContacts() {
+  const tbody = document.getElementById('contact-tbody');
+  document.getElementById('contact-count').textContent = `${CONTACTS_MASTER.length} 件`;
+  tbody.innerHTML = CONTACTS_MASTER.map(c => `<tr>
+    <td style="font-weight:600">${esc(c.name)}</td>
+    <td>${esc(c.group)}</td>
+    <td style="color:var(--text-sub)">${esc(c.role)}</td>
+    <td><a href="mailto:${esc(c.email)}" style="color:var(--primary)">${esc(c.email)}</a></td>
+    <td style="color:var(--text-sub)">${esc(c.phone)}</td>
+    <td>
+      <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:3px 8px;margin-right:4px" onclick="openContactModal('${esc(c.id)}')">編集</button>
+      <button class="btn btn-sm" style="font-size:11px;padding:3px 8px;background:var(--danger);color:white;border:none;border-radius:var(--radius)" onclick="deleteContact('${esc(c.id)}')">削除</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openContactModal(id) {
+  _contactEditId = id || null;
+  const c = id ? CONTACTS_MASTER.find(x => x.id === id) : null;
+  document.getElementById('contactModalTitle').textContent = c ? '担当者を編集' : '担当者を追加';
+  document.getElementById('cnt-name').value = c ? c.name : '';
+  document.getElementById('cnt-role').value = c ? c.role : '';
+  document.getElementById('cnt-email').value = c ? c.email : '';
+  document.getElementById('cnt-phone').value = c ? c.phone : '';
+  document.getElementById('cnt-name-err').style.display = 'none';
+  const sel = document.getElementById('cnt-group');
+  sel.innerHTML = GROUPS.map(g => `<option value="${esc(g)}" ${c && c.group === g ? 'selected' : ''}>${esc(g)}</option>`).join('');
+  document.getElementById('contactModal').classList.add('active');
+  setTimeout(() => document.getElementById('cnt-name').focus(), 100);
+}
+
+function closeContactModal() {
+  document.getElementById('contactModal').classList.remove('active');
+}
+
+function saveContact() {
+  const name = document.getElementById('cnt-name').value.trim();
+  if (!name) { document.getElementById('cnt-name-err').style.display = 'block'; return; }
+  const data = {
+    name,
+    role: document.getElementById('cnt-role').value.trim(),
+    group: document.getElementById('cnt-group').value,
+    email: document.getElementById('cnt-email').value.trim(),
+    phone: document.getElementById('cnt-phone').value.trim(),
+  };
+  if (_contactEditId) {
+    const idx = CONTACTS_MASTER.findIndex(x => x.id === _contactEditId);
+    CONTACTS_MASTER[idx] = { ...CONTACTS_MASTER[idx], ...data };
+  } else {
+    const newId = 'CNT-' + String(Date.now()).slice(-5);
+    CONTACTS_MASTER.push({ id: newId, ...data });
+  }
+  closeContactModal();
+  renderContacts();
+  showToast(_contactEditId ? '担当者を更新しました' : '担当者を追加しました', 'success');
+}
+
+function deleteContact(id) {
+  if (!confirm('この担当者を削除しますか？')) return;
+  const idx = CONTACTS_MASTER.findIndex(x => x.id === id);
+  CONTACTS_MASTER.splice(idx, 1);
+  renderContacts();
+  showToast('担当者を削除しました', 'success');
 }
 
 function esc(str) {
