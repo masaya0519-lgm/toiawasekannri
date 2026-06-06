@@ -784,8 +784,7 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
     <div class="app-header-sub">社内向け・営業・コンサルタント用</div>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
-    <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);color:white;font-size:12px" onclick="navigate('departments')">🏢 部署管理</button>
-    <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);color:white;font-size:12px" onclick="navigate('contacts')">👤 担当者管理</button>
+    <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);color:white;font-size:12px" onclick="navigate('departments')">🏢 部署・担当者管理</button>
     <div style="width:1px;height:20px;background:rgba(255,255,255,0.25)"></div>
     <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);color:white" onclick="navigate('info')">ℹ️ ガイド</button>
     <button class="btn btn-secondary btn-sm" onclick="navigate('new')">＋ 新規登録</button>
@@ -888,13 +887,8 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
               <input type="datetime-local" class="form-input" id="f_receivedAt">
             </div>
             <div class="form-group">
-              <label class="form-label">担当者</label>
-              <select class="form-select" id="f_assignedTo">
-                <option value="佐藤 花子">佐藤 花子</option>
-                <option value="田中 一郎">田中 一郎</option>
-                <option value="鈴木 次郎">鈴木 次郎</option>
-                <option value="高橋 三枝">高橋 三枝</option>
-              </select>
+              <label class="form-label">担当者（自社）</label>
+              <select class="form-select" id="f_assignedTo"></select>
             </div>
             <div class="form-group">
               <label class="form-label">受付経路 <span class="req">*</span></label>
@@ -1178,67 +1172,17 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   </div>
 </div>
 
-<!-- SCREEN: DEPARTMENTS -->
+<!-- SCREEN: DEPARTMENTS (階層ビュー) -->
 <div id="screen-departments" class="screen">
-  <div class="container" style="max-width:700px">
+  <div class="container" style="max-width:800px">
     <div class="page-header">
       <button class="back-btn" onclick="navigate('list')">← 一覧に戻る</button>
-      <h1 class="page-header-title">部署管理</h1>
+      <h1 class="page-header-title">部署・担当者管理</h1>
     </div>
-    <div class="section-card">
-      <div class="section-card-header">
-        <div class="master-action-bar" style="margin:0;width:100%">
-          <span class="master-count" id="dept-count"></span>
-          <button class="btn btn-primary btn-sm" onclick="openDeptModal()">＋ 部署を追加</button>
-        </div>
-      </div>
-      <div class="section-card-body" style="padding:0">
-        <table class="master-table">
-          <thead>
-            <tr>
-              <th style="width:40px">#</th>
-              <th>部署名</th>
-              <th>担当者数</th>
-              <th style="width:100px">操作</th>
-            </tr>
-          </thead>
-          <tbody id="dept-tbody"></tbody>
-        </table>
-      </div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+      <button class="btn btn-primary btn-sm" onclick="openDeptModal()">＋ 部署を追加</button>
     </div>
-  </div>
-</div>
-
-<!-- SCREEN: CONTACTS -->
-<div id="screen-contacts" class="screen">
-  <div class="container" style="max-width:900px">
-    <div class="page-header">
-      <button class="back-btn" onclick="navigate('list')">← 一覧に戻る</button>
-      <h1 class="page-header-title">担当者管理</h1>
-    </div>
-    <div class="section-card">
-      <div class="section-card-header">
-        <div class="master-action-bar" style="margin:0;width:100%">
-          <span class="master-count" id="contact-count"></span>
-          <button class="btn btn-primary btn-sm" onclick="openContactModal()">＋ 担当者を追加</button>
-        </div>
-      </div>
-      <div class="section-card-body" style="padding:0">
-        <table class="master-table">
-          <thead>
-            <tr>
-              <th>氏名</th>
-              <th>部署</th>
-              <th>役職</th>
-              <th>メール</th>
-              <th>電話</th>
-              <th style="width:100px">操作</th>
-            </tr>
-          </thead>
-          <tbody id="contact-tbody"></tbody>
-        </table>
-      </div>
-    </div>
+    <div id="dept-list"></div>
   </div>
 </div>
 
@@ -1271,6 +1215,10 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
       <button class="modal-close" onclick="closeContactModal()">✕</button>
     </div>
     <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">部署</label>
+        <select class="form-input" id="cnt-group"></select>
+      </div>
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">氏名 <span style="color:var(--danger)">*</span></label>
@@ -1281,10 +1229,6 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
           <label class="form-label">役職</label>
           <input type="text" class="form-input" id="cnt-role" placeholder="例: 部長">
         </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">部署</label>
-        <select class="form-input" id="cnt-group"></select>
       </div>
       <div class="form-grid">
         <div class="form-group">
@@ -1308,6 +1252,13 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 // === MOCK DATA ===
 const CLIENT_NAME = 'ABC株式会社';  // ← ここにエンドクライアント名を設定
 let GROUPS = ['経営企画部', 'IT推進室', '情報システム部', '事業推進部', 'DX推進部', '購買・調達部', '総務部', '製造管理部'];
+
+let INTERNAL_STAFF = [
+  { id: 'INT-001', name: '田中 一郎', role: 'コンサルタント',       email: 'tanaka@ourcompany.co.jp' },
+  { id: 'INT-002', name: '佐藤 花子', role: 'シニアコンサルタント', email: 'sato@ourcompany.co.jp'   },
+  { id: 'INT-003', name: '鈴木 次郎', role: 'コンサルタント',       email: 'suzuki@ourcompany.co.jp' },
+  { id: 'INT-004', name: '高橋 三枝', role: 'コンサルタント',       email: 'takahashi@ourcompany.co.jp' },
+];
 
 let CONTACTS_MASTER = [
   { id: 'CNT-001', name: '木村 誠',   group: '経営企画部',   role: '部長',      email: 'kimura@abc.co.jp',     phone: '03-1111-2222' },
@@ -1590,9 +1541,6 @@ function route() {
   } else if (hash === 'departments') {
     document.getElementById('screen-departments').classList.add('active');
     renderDepartments();
-  } else if (hash === 'contacts') {
-    document.getElementById('screen-contacts').classList.add('active');
-    renderContacts();
   } else if (hash.startsWith('detail/')) {
     const id = hash.replace('detail/', '');
     document.getElementById('screen-detail').classList.add('active');
@@ -1796,6 +1744,10 @@ function initForm() {
   const grpSel = document.getElementById('f_clientGroup');
   if (grpSel) {
     grpSel.innerHTML = `<option value="">選択してください</option>` + GROUPS.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
+  }
+  const staffSel = document.getElementById('f_assignedTo');
+  if (staffSel) {
+    staffSel.innerHTML = INTERNAL_STAFF.map(s => `<option value="${esc(s.name)}">${esc(s.name)}（${esc(s.role)}）</option>`).join('');
   }
   document.querySelectorAll('.form-error').forEach(e => e.classList.remove('show'));
   document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(e => e.classList.remove('error'));
@@ -2717,23 +2669,42 @@ function switchInfoTab(id, btn) {
   btn.classList.add('active');
 }
 
-// === DEPARTMENTS ===
+// === DEPARTMENTS (階層ビュー) ===
 let _deptEditIdx = null;
+let _contactEditId = null;
 
 function renderDepartments() {
-  const tbody = document.getElementById('dept-tbody');
-  document.getElementById('dept-count').textContent = `${GROUPS.length} 件`;
-  tbody.innerHTML = GROUPS.map((g, i) => {
-    const cnt = CONTACTS_MASTER.filter(c => c.group === g).length;
-    return `<tr>
-      <td style="color:var(--text-sub)">${i + 1}</td>
-      <td style="font-weight:600">${esc(g)}</td>
-      <td>${cnt > 0 ? `<span style="color:var(--primary);font-weight:600">${cnt} 名</span>` : '<span style="color:var(--text-sub)">0 名</span>'}</td>
-      <td>
-        <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:3px 8px;margin-right:4px" onclick="openDeptModal(${i})">編集</button>
-        <button class="btn btn-sm" style="font-size:11px;padding:3px 8px;background:var(--danger);color:white;border:none;border-radius:var(--radius)" onclick="deleteDept(${i})">削除</button>
-      </td>
-    </tr>`;
+  const container = document.getElementById('dept-list');
+  container.innerHTML = GROUPS.map((g, i) => {
+    const contacts = CONTACTS_MASTER.filter(c => c.group === g);
+    const contactRows = contacts.length > 0
+      ? contacts.map(c => `
+        <div style="display:grid;grid-template-columns:1fr 100px 200px 140px 90px;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid var(--border);font-size:13px">
+          <span style="font-weight:600">${esc(c.name)}</span>
+          <span style="color:var(--text-sub)">${esc(c.role)}</span>
+          <a href="mailto:${esc(c.email)}" style="color:var(--primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.email)}</a>
+          <span style="color:var(--text-sub)">${esc(c.phone)}</span>
+          <span style="display:flex;gap:4px">
+            <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:2px 7px" onclick="openContactModal('${esc(c.id)}')">編集</button>
+            <button class="btn btn-sm" style="font-size:11px;padding:2px 7px;background:var(--danger);color:white;border:none;border-radius:var(--radius)" onclick="deleteContact('${esc(c.id)}')">削除</button>
+          </span>
+        </div>`).join('')
+      : `<div style="padding:12px 16px;border-top:1px solid var(--border);color:var(--text-sub);font-size:13px">担当者なし</div>`;
+    return `
+      <div class="section-card" style="margin-bottom:12px">
+        <div class="section-card-header" style="padding:12px 16px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <strong style="font-size:15px">${esc(g)}</strong>
+            <span style="font-size:12px;color:var(--text-sub)">${contacts.length} 名</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-secondary btn-sm" style="font-size:12px" onclick="openContactModal(null,'${esc(g)}')">＋ 担当者を追加</button>
+            <button class="btn btn-secondary btn-sm" style="font-size:12px" onclick="openDeptModal(${i})">部署を編集</button>
+            <button class="btn btn-sm" style="font-size:12px;background:var(--danger);color:white;border:none;border-radius:var(--radius)" onclick="deleteDept(${i})">削除</button>
+          </div>
+        </div>
+        ${contactRows}
+      </div>`;
   }).join('');
 }
 
@@ -2774,26 +2745,7 @@ function deleteDept(idx) {
   showToast('部署を削除しました', 'success');
 }
 
-// === CONTACTS ===
-let _contactEditId = null;
-
-function renderContacts() {
-  const tbody = document.getElementById('contact-tbody');
-  document.getElementById('contact-count').textContent = `${CONTACTS_MASTER.length} 件`;
-  tbody.innerHTML = CONTACTS_MASTER.map(c => `<tr>
-    <td style="font-weight:600">${esc(c.name)}</td>
-    <td>${esc(c.group)}</td>
-    <td style="color:var(--text-sub)">${esc(c.role)}</td>
-    <td><a href="mailto:${esc(c.email)}" style="color:var(--primary)">${esc(c.email)}</a></td>
-    <td style="color:var(--text-sub)">${esc(c.phone)}</td>
-    <td>
-      <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:3px 8px;margin-right:4px" onclick="openContactModal('${esc(c.id)}')">編集</button>
-      <button class="btn btn-sm" style="font-size:11px;padding:3px 8px;background:var(--danger);color:white;border:none;border-radius:var(--radius)" onclick="deleteContact('${esc(c.id)}')">削除</button>
-    </td>
-  </tr>`).join('');
-}
-
-function openContactModal(id) {
+function openContactModal(id, defaultGroup) {
   _contactEditId = id || null;
   const c = id ? CONTACTS_MASTER.find(x => x.id === id) : null;
   document.getElementById('contactModalTitle').textContent = c ? '担当者を編集' : '担当者を追加';
@@ -2803,7 +2755,8 @@ function openContactModal(id) {
   document.getElementById('cnt-phone').value = c ? c.phone : '';
   document.getElementById('cnt-name-err').style.display = 'none';
   const sel = document.getElementById('cnt-group');
-  sel.innerHTML = GROUPS.map(g => `<option value="${esc(g)}" ${c && c.group === g ? 'selected' : ''}>${esc(g)}</option>`).join('');
+  const activeGroup = c ? c.group : (defaultGroup || GROUPS[0]);
+  sel.innerHTML = GROUPS.map(g => `<option value="${esc(g)}" ${activeGroup === g ? 'selected' : ''}>${esc(g)}</option>`).join('');
   document.getElementById('contactModal').classList.add('active');
   setTimeout(() => document.getElementById('cnt-name').focus(), 100);
 }
@@ -2830,7 +2783,7 @@ function saveContact() {
     CONTACTS_MASTER.push({ id: newId, ...data });
   }
   closeContactModal();
-  renderContacts();
+  renderDepartments();
   showToast(_contactEditId ? '担当者を更新しました' : '担当者を追加しました', 'success');
 }
 
