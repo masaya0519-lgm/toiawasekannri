@@ -956,12 +956,8 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
               <span class="form-error" id="err_summary">内容を入力してください</span>
             </div>
             <div class="form-group">
-              <label class="form-label">希望納期</label>
-              <input type="date" class="form-input" id="f_desiredDeadline">
-            </div>
-            <div class="form-group">
-              <label class="form-label">予算感</label>
-              <input type="text" class="form-input" id="f_budget" placeholder="例: 〜500万円、未定">
+              <label class="form-label">関連契約</label>
+              <input type="text" class="form-input" id="f_contractId" placeholder="例: CTR-2026-005">
             </div>
           </div>
         </div>
@@ -1223,8 +1219,7 @@ let inquiries = [
     title: '基幹システム刷新 — 設計工数8人月の根拠説明を求められた',
     summary: '提出した見積もり（EST-2026-031）の設計フェーズが8人月となっているが、なぜそれほどかかるのか根拠を説明してほしいとの連絡。\n先方の担当者は「同規模の他社案件では4人月だった」と言っている。\n比較対象が何かは不明。来週の役員報告前に回答が欲しいとのこと。',
     urgency: 'high',
-    desiredDeadline: '2026-06-11',
-    estimatedBudget: '承認済み予算: 8,000万円',
+    contractId: 'CTR-2026-031',
     internalNotes: [],
     relatedEstimateIds: 'EST-2026-031 v2.1',
     relatedProjectIds: '',
@@ -1248,8 +1243,7 @@ let inquiries = [
     title: '生産管理システム刷新 — データ移行はスコープ内か確認',
     summary: 'メールにてお問い合わせ。見積書（EST-2026-028）に「データ移行」の記載があるが、移行対象データの範囲が不明確とのこと。\n具体的には「過去10年分の生産実績データ（約500万件）」が対象に含まれるかどうかを確認したい。\nまた、移行前のデータクレンジングは誰が実施するのかについても聞いている。',
     urgency: 'medium',
-    desiredDeadline: '2026-06-13',
-    estimatedBudget: '3,500万円（固定）',
+    contractId: 'CTR-2026-028',
     internalNotes: [],
     relatedEstimateIds: 'EST-2026-028 v1.3',
     relatedProjectIds: '',
@@ -1273,8 +1267,7 @@ let inquiries = [
     title: '販売管理刷新 — 競合他社より2,000万円高い。値引き交渉',
     summary: '競合A社の見積もりが弊社より約2,000万円低いとのことで、価格差の説明と値引き対応が可能かを問い合わせてきた。\n先方は「機能的には同等に見える。なぜ差があるのか」と言っている。\n競合の見積書は未確認。テスト工程の有無や品質保証範囲が違う可能性がある。',
     urgency: 'high',
-    desiredDeadline: '2026-06-10',
-    estimatedBudget: '5,200万円（弊社提示）',
+    contractId: 'CTR-2026-019',
     internalNotes: [
       { at: '2026-05-30T10:00', author: '佐藤 花子', text: '競合はA社と思われる。A社は結合テスト・UAT支援を別途オプション扱いにしている場合が多い。その分安く見える可能性が高い。開発の山本さんにテスト工程の工数内訳を整理してもらうよう依頼した。' },
       { at: '2026-06-03T16:30', author: '佐藤 花子', text: '山本さんより内訳確認済み。テスト工程だけで8人月。A社見積もりを入手できれば比較資料が作れる。先方に競合見積書の共有を依頼することを検討中。' }
@@ -1301,8 +1294,7 @@ let inquiries = [
     title: '電子カルテ連携刷新 — フェーズ2のスコープが不明確との指摘',
     summary: '対面MTGにて、見積書（EST-2025-044）のフェーズ2「外部システム連携」の対象範囲について質問を受けた。\n先方は「検査システムとの連携はフェーズ2に含まれると思っていたが、見積書に記載がない」と指摘。\nフェーズ1（電子カルテ本体）とフェーズ2（連携）の境界線を明確にしてほしいとのこと。\nチェックリスト形式でスコープを整理した資料を求められた。',
     urgency: 'medium',
-    desiredDeadline: '2026-06-17',
-    estimatedBudget: '6,000万円（フェーズ1+2合計）',
+    contractId: 'CTR-2025-044',
     internalNotes: [
       { at: '2026-06-03T15:00', author: '鈴木 次郎', text: '要件定義書の付属資料「連携一覧」を確認。検査システム（検査機器メーカー製）はフェーズ2の対象として記載はあるが、見積書本体には反映されていないことが判明。開発に確認中。' }
     ],
@@ -1328,8 +1320,7 @@ let inquiries = [
     title: 'ERP刷新 — 追加要件（モバイル対応）の費用を知りたい',
     summary: 'メールにて。当初スコープに含まれていなかった「スマートフォン対応（承認ワークフロー）」を追加したい場合の追加費用を教えてほしいとのこと。\n対象業務は「購買承認」「経費精算承認」の2ワークフロー。\niOSとAndroid両対応が必要。既存のWeb画面をレスポンシブ化するのか、ネイティブアプリを作るのかは先方に決定権がある。',
     urgency: 'medium',
-    desiredDeadline: '2026-06-15',
-    estimatedBudget: '追加予算: 〜500万円まで',
+    contractId: 'CTR-2026-007',
     internalNotes: [
       { at: '2026-05-23T10:00', author: '高橋 三枝', text: 'レスポンシブ対応（PWA）とネイティブアプリの両パターンで概算を開発に依頼した。' },
       { at: '2026-06-02T11:00', author: '高橋 三枝', text: '開発から回答あり。PWA対応: 約180万円・2ヶ月。ネイティブ(iOS+Android): 約420万円・4ヶ月。先方の予算内に収まるのでどちらでも対応可能。回答ドラフト作成中。' }
@@ -1356,8 +1347,7 @@ let inquiries = [
     title: '生産ラインシステム刷新 — 結合テスト3人月の根拠',
     summary: '見積書（EST-2026-014）の結合テスト工程が3人月となっているが、前回の類似プロジェクトでは1.5人月だったとのこと。今回なぜ倍になっているのか説明してほしい。',
     urgency: 'medium',
-    desiredDeadline: '2026-05-28',
-    estimatedBudget: '4,800万円',
+    contractId: 'CTR-2026-014',
     internalNotes: [
       { at: '2026-05-14T10:00', author: '田中 一郎', text: '前回案件（PROJ-2023-027）と比較。今回はPLC連携が追加されており、実機テスト環境の準備・調整で1人月増。さらに24時間稼働要件による夜間テストで0.5人月増。合計1.5人月増加の説明ができた。' }
     ],
@@ -1383,8 +1373,7 @@ let inquiries = [
     title: '受発注システム刷新 — 瑕疵担保期間と保証範囲の確認',
     summary: '対面MTGで契約条件について質問を受けた。特に「瑕疵担保責任期間（納品後1年）」の起算点と、保証対象の範囲について。\n先方の顧問弁護士から「仕様変更後の不具合も保証対象になるか」という具体的な問いかけがあった。',
     urgency: 'high',
-    desiredDeadline: '2026-04-25',
-    estimatedBudget: '2,200万円',
+    contractId: 'CTR-2026-003',
     internalNotes: [
       { at: '2026-04-20T11:00', author: '佐藤 花子', text: '法務・管理部に確認。瑕疵担保期間の起算点は「最終検収完了日」。仕様変更後の不具合は変更後の仕様に基づいて保証。変更前に既知のバグは含まない。法務部長に確認・承認済み。' },
       { at: '2026-05-10T12:00', author: '佐藤 花子', text: '契約締結完了。プロジェクト開始。PROJ-2026-008として管理。' }
@@ -1411,8 +1400,7 @@ let inquiries = [
     title: '在庫管理システム刷新 — 予算1,000万円以内での対応可否',
     summary: 'メールにて。提示した見積もり（EST-2026-022: 2,800万円）に対して「予算が1,000万円しか取れなかった。この金額で何か対応できるか」との問い合わせ。\n要件定義書に記載の機能をすべて実現するには大幅なスコープ削減が必要な水準。',
     urgency: 'low',
-    desiredDeadline: '',
-    estimatedBudget: '1,000万円以内',
+    contractId: '',
     internalNotes: [
       { at: '2026-05-26T10:00', author: '鈴木 次郎', text: '1,000万円では要件の30%程度しか実現できず、業務要件を満たさないと判断。SaaS製品（クラウド在庫管理）への切り替えを提案したが、先方は社内カスタマイズが必須とのことでお断り。他ベンダーの紹介も検討したが希望なし。見送りに。' }
     ],
@@ -1724,8 +1712,7 @@ function submitNewForm(e) {
     title: title.value.trim(),
     summary: summary.value.trim(),
     urgency: urgencyEl ? urgencyEl.value : 'medium',
-    desiredDeadline: document.getElementById('f_desiredDeadline').value,
-    estimatedBudget: document.getElementById('f_budget').value.trim(),
+    contractId: document.getElementById('f_contractId').value.trim(),
     internalNotes: memo ? [{ at: now, author: assignedTo, text: memo }] : [],
     relatedEstimateIds: document.getElementById('f_relatedEstimate').value.trim(),
     relatedProjectIds: '',
@@ -1865,8 +1852,7 @@ function renderDetail(id) {
             <div class="info-row"><span class="info-label">受付日時</span><span class="info-value">${fmtDateTime(inq.createdAt)}</span></div>
             <div class="info-row"><span class="info-label">経路</span><span class="info-value">${CHANNELS[inq.incomingChannel] || '—'}</span></div>
             <div class="info-row"><span class="info-label">担当者</span><span class="info-value">${esc(inq.assignedTo)}</span></div>
-            ${inq.desiredDeadline ? `<div class="info-row"><span class="info-label">希望納期</span><span class="info-value">${inq.desiredDeadline}</span></div>` : ''}
-            ${inq.estimatedBudget ? `<div class="info-row"><span class="info-label">予算感</span><span class="info-value">${esc(inq.estimatedBudget)}</span></div>` : ''}
+            ${inq.contractId ? `<div class="info-row"><span class="info-label">関連契約</span><span class="info-value">${esc(inq.contractId)}</span></div>` : ''}
             ${inq.followUpDate ? `<div class="info-row"><span class="info-label">フォロー日</span><span class="info-value${overdue ? ' overdue' : ''}">${inq.followUpDate}${overdue ? ' ⚠️' : ''}</span></div>` : ''}
             ${inq.respondedAt ? `<div class="info-row"><span class="info-label">回答日時</span><span class="info-value">${fmtDateTime(inq.respondedAt)}</span></div>` : ''}
           </div>
@@ -2266,8 +2252,7 @@ const MOCK_EMAILS = [
       title: '基幹システム刷新 — 設計8人月の根拠説明を求められた',
       summary: '見積書（EST-2026-031 v2.1）の設計フェーズ8人月について根拠説明を求められた。\n先方は「類似規模の他社案件では4人月程度」と認識しており、倍になっている理由を確認したい。\n来週水曜（6/11）の役員報告前に回答が欲しいとのこと。',
       urgency: 'high',
-      desiredDeadline: '2026-06-11',
-      estimatedBudget: '',
+      contractId: 'CTR-2026-031',
       relatedEstimateIds: 'EST-2026-031 v2.1',
       followUpDate: '2026-06-09'
     }
@@ -2290,8 +2275,7 @@ const MOCK_EMAILS = [
       title: '生産管理システム刷新 — データ移行のスコープ確認',
       summary: '見積書（EST-2026-028 v1.3）のデータ移行範囲について問い合わせあり。\n・過去10年分の生産実績データ（約500万件）が移行対象に含まれるか\n・移行前のデータクレンジング（重複・欠損整理）はどちらが担当するか',
       urgency: 'medium',
-      desiredDeadline: '',
-      estimatedBudget: '',
+      contractId: 'CTR-2026-028',
       relatedEstimateIds: 'EST-2026-028 v1.3',
       followUpDate: '2026-06-12'
     }
@@ -2313,8 +2297,7 @@ const MOCK_EMAILS = [
       title: 'ERP刷新 — スマートフォン対応（承認ワークフロー）追加要件の費用確認',
       summary: '当初スコープ外の「スマートフォンからの承認ワークフロー」追加について問い合わせあり。\n対象業務: 購買承認・経費精算承認（2業務）\niOS / Android両対応が必要。ネイティブ or レスポンシブは先方未決定。\n追加予算目安: 〜500万円。費用・期間の見通しを求めている。',
       urgency: 'medium',
-      desiredDeadline: '',
-      estimatedBudget: '〜500万円（追加分）',
+      contractId: 'CTR-2026-007',
       relatedEstimateIds: 'EST-2026-007 v4.1',
       followUpDate: '2026-06-13'
     }
@@ -2335,8 +2318,7 @@ const MOCK_RECORDINGS = [
       title: '生産ラインシステム — 結合テスト3人月の根拠説明（電話）',
       summary: '結合テストが前回比+1.5人月（3人月）の根拠について問い合わせあり。\n増加理由: PLC連携の実機テスト環境準備・調整（+1人月）、24時間稼働要件による夜間テスト（+0.5人月）。\n先方は説明に納得。文書での説明書送付を求めている。\n追加確認事項: 6月末までの契約可否 → 折り返し連絡が必要。',
       urgency: 'medium',
-      desiredDeadline: '2026-06-30',
-      estimatedBudget: '',
+      contractId: 'CTR-2026-014',
       relatedEstimateIds: 'EST-2026-014 v2.0',
       followUpDate: '2026-06-07'
     }
@@ -2354,8 +2336,7 @@ const MOCK_RECORDINGS = [
       title: '販売管理刷新 — 競合他社（A社）と2,000万円の価格差について（電話）',
       summary: '競合A社の見積もりが弊社より約2,000万円低いとの連絡。先方は「機能的に同等に見える」と認識。\n競合見積書の共有は難しいとのこと。\nA社のテスト工程の取り扱いを確認するよう促した。弊社見積もりには結合テスト+受入テスト支援（8人月）が含まれており、A社がオプション扱いにしている可能性が高い。\n来週改めて説明の機会をもらう予定。',
       urgency: 'high',
-      desiredDeadline: '',
-      estimatedBudget: '',
+      contractId: '',
       relatedEstimateIds: 'EST-2026-019 v3.0',
       followUpDate: '2026-06-13'
     }
@@ -2521,8 +2502,7 @@ function prefillFormAndNavigate(data, source) {
       f_category: data.category || 'other',
       f_title: data.title || '',
       f_summary: data.summary || '',
-      f_budget: data.estimatedBudget || '',
-      f_desiredDeadline: data.desiredDeadline || '',
+      f_contractId: data.contractId || '',
       f_relatedEstimate: data.relatedEstimateIds || '',
       f_followUp: data.followUpDate || ''
     };
