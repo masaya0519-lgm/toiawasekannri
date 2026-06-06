@@ -1,0 +1,2600 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>問い合わせ管理</title>
+<style>
+/* === RESET & BASE === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-main);
+  background: var(--bg);
+  min-height: 100vh;
+}
+:root {
+  --primary: #1e40af;
+  --primary-hover: #1d3a9e;
+  --primary-light: #eff6ff;
+  --primary-border: #bfdbfe;
+  --surface: #ffffff;
+  --bg: #f1f5f9;
+  --border: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --text-main: #0f172a;
+  --text-sub: #64748b;
+  --text-muted: #94a3b8;
+  --success: #16a34a;
+  --success-light: #f0fdf4;
+  --warning: #d97706;
+  --warning-light: #fffbeb;
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+  --purple: #7c3aed;
+  --purple-light: #f5f3ff;
+  --teal: #0891b2;
+  --teal-light: #ecfeff;
+  --gray: #6b7280;
+  --gray-light: #f9fafb;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+}
+a { color: var(--primary); text-decoration: none; }
+button { cursor: pointer; font-family: inherit; font-size: 14px; }
+input, select, textarea { font-family: inherit; font-size: 14px; }
+
+/* === LAYOUT === */
+.app-header {
+  background: var(--primary);
+  color: white;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.app-header-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.app-header-sub {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 1px;
+}
+.screen { display: none; }
+.screen.active { display: block; }
+.container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+.container-wide { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+/* === BUTTONS === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-weight: 500;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-secondary {
+  background: white;
+  color: var(--text-main);
+  border-color: var(--border);
+}
+.btn-secondary:hover { background: var(--bg); border-color: var(--border-hover); }
+.btn-ghost {
+  background: transparent;
+  color: var(--text-sub);
+  border-color: transparent;
+  padding: 6px 12px;
+}
+.btn-ghost:hover { background: var(--bg); color: var(--text-main); }
+.btn-success {
+  background: var(--success);
+  color: white;
+  border-color: var(--success);
+}
+.btn-success:hover { background: #15803d; }
+.btn-sm { padding: 5px 10px; font-size: 13px; }
+
+/* === BADGES === */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.badge-new { background: #dbeafe; color: #1e40af; }
+.badge-new::before { background: #2563eb; }
+.badge-investigating { background: #fef3c7; color: #92400e; }
+.badge-investigating::before { background: #d97706; }
+.badge-drafting { background: #ede9fe; color: #5b21b6; }
+.badge-drafting::before { background: #7c3aed; }
+.badge-responded { background: #cffafe; color: #164e63; }
+.badge-responded::before { background: #0891b2; }
+.badge-closed { background: #dcfce7; color: #14532d; }
+.badge-closed::before { background: #16a34a; }
+.badge-declined { background: #f3f4f6; color: #374151; }
+.badge-declined::before { background: #6b7280; }
+.urgency-high { background: #fee2e2; color: #991b1b; border-radius: var(--radius-sm); padding: 1px 6px; font-size: 11px; font-weight: 700; }
+.urgency-medium { background: #fef3c7; color: #92400e; border-radius: var(--radius-sm); padding: 1px 6px; font-size: 11px; font-weight: 700; }
+.urgency-low { background: #f3f4f6; color: #374151; border-radius: var(--radius-sm); padding: 1px 6px; font-size: 11px; font-weight: 700; }
+
+/* === CARDS === */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.inquiry-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.inquiry-card:hover {
+  border-color: var(--primary-border);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.card-row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.card-id { font-size: 12px; color: var(--text-muted); font-family: monospace; }
+.card-row2 { margin-bottom: 8px; }
+.card-title { font-size: 15px; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card-row3 { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--text-sub); flex-wrap: wrap; }
+.card-meta-item { display: flex; align-items: center; gap: 4px; }
+.card-client { font-weight: 600; font-size: 13px; color: var(--text-main); }
+.overdue { color: var(--danger) !important; font-weight: 600; }
+
+/* === FILTER TABS === */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 0;
+}
+.filter-tab {
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  transition: all 0.15s;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+.filter-tab:hover { color: var(--text-main); background: var(--bg); }
+.filter-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--bg);
+  color: var(--text-sub);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+.filter-tab.active .tab-count { background: var(--primary-light); color: var(--primary); }
+
+/* === SEARCH === */
+.search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.search-input-wrap { position: relative; flex: 1; }
+.search-input {
+  width: 100%;
+  padding: 9px 12px 9px 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: white;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--primary); }
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 15px;
+  pointer-events: none;
+}
+.stats-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.stat-chip {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--text-sub);
+}
+.stat-chip strong { color: var(--text-main); font-size: 15px; }
+.stat-chip.alert strong { color: var(--danger); }
+
+/* === FORM === */
+.form-section {
+  border-left: 3px solid var(--primary);
+  padding-left: 14px;
+  margin-bottom: 28px;
+}
+.form-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.form-full { grid-column: 1 / -1; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: 13px; font-weight: 600; color: var(--text-main); }
+.form-label .req { color: var(--danger); margin-left: 2px; }
+.form-input, .form-select, .form-textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: white;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  color: var(--text-main);
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30,64,175,0.08);
+}
+.form-textarea { resize: vertical; min-height: 90px; }
+.form-hint { font-size: 12px; color: var(--text-muted); }
+.form-error { font-size: 12px; color: var(--danger); display: none; }
+.form-error.show { display: block; }
+.form-input.error, .form-select.error, .form-textarea.error { border-color: var(--danger); }
+.radio-group { display: flex; gap: 16px; flex-wrap: wrap; }
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: white;
+  transition: all 0.15s;
+  user-select: none;
+}
+.radio-label:hover { border-color: var(--primary-border); background: var(--primary-light); }
+.radio-label input[type=radio] { accent-color: var(--primary); }
+.radio-label:has(input:checked) { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.page-header-title { font-size: 20px; font-weight: 700; }
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-sub);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+}
+.back-btn:hover { color: var(--text-main); background: var(--bg); }
+
+/* === DETAIL === */
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.detail-title { font-size: 20px; font-weight: 700; margin-top: 6px; }
+.detail-badges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.detail-body { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+@media (max-width: 720px) { .detail-body { grid-template-columns: 1fr; } }
+.detail-main { display: flex; flex-direction: column; gap: 16px; }
+.detail-side { display: flex; flex-direction: column; gap: 12px; }
+.info-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+.info-card-title { font-size: 12px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.info-row { display: flex; gap: 10px; font-size: 13px; margin-bottom: 8px; }
+.info-row:last-child { margin-bottom: 0; }
+.info-label { color: var(--text-sub); white-space: nowrap; min-width: 90px; flex-shrink: 0; }
+.info-value { color: var(--text-main); font-weight: 500; word-break: break-all; }
+.info-value a { color: var(--primary); }
+.content-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+.content-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.content-box-title { font-size: 13px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; }
+.content-text { font-size: 14px; color: var(--text-main); white-space: pre-wrap; line-height: 1.7; }
+.memo-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.memo-item { background: var(--gray-light); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; }
+.memo-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.memo-text { font-size: 13px; color: var(--text-main); white-space: pre-wrap; }
+.memo-form { display: flex; gap: 8px; }
+.memo-form textarea { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); resize: none; outline: none; font-family: inherit; font-size: 13px; min-height: 60px; transition: border-color 0.15s; }
+.memo-form textarea:focus { border-color: var(--primary); }
+.draft-area { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; resize: vertical; min-height: 150px; font-size: 14px; line-height: 1.7; outline: none; font-family: inherit; transition: border-color 0.15s; }
+.draft-area:focus { border-color: var(--primary); }
+.draft-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.template-select { padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: white; color: var(--text-main); cursor: pointer; }
+.draft-actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+/* === STATUS CHANGE === */
+.status-change-wrap { position: relative; display: inline-block; }
+.status-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  min-width: 200px;
+  z-index: 200;
+  padding: 6px;
+  display: none;
+}
+.status-dropdown.open { display: block; }
+.status-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.1s;
+}
+.status-option:hover { background: var(--bg); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* === EMPTY STATE === */
+.empty-state { text-align: center; padding: 64px 24px; color: var(--text-sub); }
+.empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+.empty-text { font-size: 15px; margin-bottom: 4px; }
+.empty-hint { font-size: 13px; }
+
+/* === TOAST === */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: #1e293b;
+  color: white;
+  padding: 12px 18px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  box-shadow: var(--shadow-md);
+  animation: toast-in 0.25s ease;
+  max-width: 320px;
+}
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* === MISC === */
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.list-stack { display: flex; flex-direction: column; gap: 10px; }
+.section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.section-card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.section-card-body { padding: 16px 20px; }
+.channel-icon { font-size: 16px; }
+
+@media (max-width: 600px) {
+  .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+  .detail-body { grid-template-columns: 1fr; }
+  .app-header { padding: 0 12px; }
+  .container, .container-wide { padding: 16px 12px; }
+}
+
+/* === MODAL === */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 580px;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+  animation: modal-in 0.2s ease;
+}
+@keyframes modal-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.modal-title { font-size: 15px; font-weight: 700; }
+.modal-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.modal-close { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; line-height: 1; padding: 2px 6px; border-radius: var(--radius-sm); }
+.modal-close:hover { background: var(--bg); color: var(--text-main); }
+
+/* === EMAIL LIST IN MODAL === */
+.email-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.email-item:hover { border-color: var(--primary-border); background: var(--primary-light); }
+.email-from { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
+.email-subject { font-weight: 600; font-size: 14px; margin-bottom: 4px; line-height: 1.4; }
+.email-preview { font-size: 12px; color: var(--text-sub); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 8px; }
+.email-footer { display: flex; justify-content: space-between; align-items: center; }
+.email-date { font-size: 11px; color: var(--text-muted); }
+.unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+
+/* === AI PROCESSING ANIMATION === */
+.ai-processing { text-align: center; padding: 32px 16px; }
+.ai-spinner { font-size: 38px; animation: ai-spin 1.2s linear infinite; display: inline-block; margin-bottom: 14px; }
+@keyframes ai-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.ai-label { font-size: 15px; font-weight: 600; margin-bottom: 20px; color: var(--text-main); }
+.ai-steps { text-align: left; max-width: 300px; margin: 0 auto; }
+.ai-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  transition: color 0.3s;
+}
+.ai-step:last-child { border-bottom: none; }
+.ai-step.done { color: var(--success); }
+.ai-step.active { color: var(--primary); font-weight: 600; }
+.step-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+
+/* === UPLOAD ZONE === */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--gray-light);
+}
+.upload-zone:hover, .upload-zone.dragover { border-color: var(--primary); background: var(--primary-light); }
+.upload-zone-icon { font-size: 44px; margin-bottom: 10px; }
+.upload-zone-text { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.upload-zone-hint { font-size: 12px; color: var(--text-muted); }
+.upload-formats { margin-top: 10px; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+.format-tag { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 2px 8px; font-size: 11px; color: var(--text-sub); }
+
+/* === AUTO-FILL HIGHLIGHT === */
+.autofill-highlight {
+  animation: highlight-pulse 1.5s ease;
+}
+@keyframes highlight-pulse {
+  0%   { background: #fef9c3; border-color: #eab308; }
+  60%  { background: #fef9c3; border-color: #eab308; }
+  100% { background: white; border-color: var(--border); }
+}
+.autofill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.intake-buttons { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+
+/* === VIEW TOGGLE === */
+.view-toggle { display: flex; background: var(--border); border-radius: var(--radius); padding: 2px; }
+.view-toggle-btn { padding: 5px 14px; border: none; background: transparent; border-radius: 4px; font-size: 13px; cursor: pointer; color: var(--text-sub); transition: all 0.15s; }
+.view-toggle-btn.active { background: white; color: var(--text-main); font-weight: 600; box-shadow: var(--shadow-sm); }
+
+/* === FILTER DROPDOWNS === */
+.filter-dropdowns { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+.filter-select { padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: white; color: var(--text-main); cursor: pointer; }
+.filter-select:focus { outline: none; border-color: var(--primary); }
+
+/* === KANBAN BOARD === */
+.kanban-wrap { overflow-x: auto; padding-bottom: 20px; }
+.kanban-board { display: flex; gap: 12px; min-width: max-content; align-items: flex-start; }
+.kanban-column {
+  width: 220px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--gray-light);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.kanban-col-header {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-top: 3px solid var(--col-color, var(--primary));
+}
+.kanban-col-title { font-size: 13px; font-weight: 700; flex: 1; color: var(--text-main); }
+.kanban-col-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(0,0,0,0.07);
+  border-radius: 10px;
+  padding: 1px 7px;
+  color: var(--text-sub);
+}
+.kanban-col-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 120px;
+  transition: background 0.15s, outline 0.15s;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+.kanban-col-body.drag-over {
+  background: var(--primary-light);
+  outline: 2px dashed var(--primary);
+  outline-offset: -4px;
+}
+.kanban-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  cursor: grab;
+  transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+  box-shadow: var(--shadow-sm);
+  user-select: none;
+}
+.kanban-card:hover { box-shadow: var(--shadow-md); border-color: var(--primary-border); transform: translateY(-1px); }
+.kanban-card:active { cursor: grabbing; }
+.kanban-card.dragging { opacity: 0.35; box-shadow: none; }
+.kanban-card-title { font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; line-height: 1.4; }
+.kanban-card-group { font-size: 11px; color: var(--primary); font-weight: 600; margin-bottom: 2px; }
+.kanban-card-meta { font-size: 11px; color: var(--text-sub); }
+.kanban-card-badges { display: flex; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
+.kanban-empty { text-align: center; padding: 20px 8px; color: var(--text-muted); font-size: 12px; }
+.kanban-archived { margin-top: 16px; padding: 12px; background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.kanban-archived-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+.kanban-archived-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.kanban-archived-chip { padding: 3px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; font-size: 12px; color: var(--text-sub); cursor: pointer; }
+.kanban-archived-chip:hover { border-color: var(--border-hover); color: var(--text-main); }
+
+/* === INFO PAGE === */
+.info-tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:24px; }
+.info-tab { padding:10px 18px; border:none; background:transparent; color:var(--text-sub); font-size:14px; font-weight:500; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.15s; border-radius:var(--radius-sm) var(--radius-sm) 0 0; }
+.info-tab:hover { color:var(--text-main); background:var(--bg); }
+.info-tab.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:700; }
+.info-tab-panel { display:none; }
+.info-tab-panel.active { display:block; }
+.info-step { display:flex; gap:16px; margin-bottom:20px; }
+.info-step-num { width:32px; height:32px; border-radius:50%; background:var(--primary); color:white; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.info-step-body h4 { font-size:15px; font-weight:700; margin-bottom:4px; }
+.info-step-body p { font-size:13px; color:var(--text-sub); line-height:1.6; }
+.info-step-body ul { font-size:13px; color:var(--text-sub); padding-left:16px; line-height:1.8; }
+.issue-card { background:white; border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px 20px; margin-bottom:12px; }
+.issue-card-title { font-size:13px; font-weight:700; color:var(--text-sub); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.issue-item { display:flex; align-items:flex-start; gap:10px; padding:6px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.issue-item:last-child { border-bottom:none; }
+.issue-priority { font-size:10px; font-weight:700; padding:1px 6px; border-radius:10px; white-space:nowrap; flex-shrink:0; margin-top:2px; }
+.prio-high { background:#fee2e2; color:#991b1b; }
+.prio-med { background:#fef3c7; color:#92400e; }
+.prio-low { background:#f0fdf4; color:#166534; }
+.changelog-table { width:100%; border-collapse:collapse; font-size:13px; }
+.changelog-table th { background:var(--bg); padding:9px 14px; text-align:left; font-size:12px; font-weight:700; color:var(--text-sub); text-transform:uppercase; letter-spacing:.04em; border-bottom:2px solid var(--border); }
+.changelog-table td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+.changelog-table tr:last-child td { border-bottom:none; }
+.changelog-table tr:hover td { background:var(--gray-light); }
+.ver-badge { font-family:monospace; font-size:12px; background:var(--primary-light); color:var(--primary); padding:2px 8px; border-radius:var(--radius-sm); font-weight:700; }
+.change-tag { display:inline-flex; align-items:center; padding:1px 7px; border-radius:10px; font-size:11px; font-weight:600; margin-right:4px; }
+.tag-feat { background:#dbeafe; color:#1e40af; }
+.tag-fix { background:#dcfce7; color:#14532d; }
+.tag-data { background:#ede9fe; color:#5b21b6; }
+
+/* === CLIENT BADGE (form) === */
+.client-badge { background: var(--primary-light); border: 1px solid var(--primary-border); border-radius: var(--radius); padding: 8px 14px; font-size: 13px; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+.client-badge strong { color: var(--primary); }
+
+/* === RELATED INFO PANEL === */
+.info-source-section { margin-bottom: 16px; }
+.info-source-section:last-child { margin-bottom: 0; }
+.info-source-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.info-source-count {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+.info-source-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  cursor: default;
+  transition: background 0.1s;
+  border: 1px solid transparent;
+}
+.info-source-item:hover { background: var(--primary-light); border-color: var(--primary-border); }
+.info-item-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.info-item-body { flex: 1; min-width: 0; }
+.info-item-name { font-size: 13px; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.info-item-path { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 1px; }
+.info-item-relevance { font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 3px; }
+.info-item-excerpt { font-size: 12px; color: var(--text-sub); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.info-searching { display:flex; align-items:center; gap:10px; padding:16px 0; color:var(--text-sub); font-size:13px; }
+.info-search-spinner { animation: ai-spin 1s linear infinite; display:inline-block; }
+
+/* === TEAMS DISPATCH MODAL === */
+.teams-preview {
+  background: #f3f2f1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid #d2d0ce;
+}
+.teams-preview-header {
+  background: #464775;
+  color: white;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.teams-preview-body {
+  padding: 14px;
+  background: white;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-family: -apple-system, sans-serif;
+  max-height: 320px;
+  overflow-y: auto;
+  color: #1f1f1f;
+}
+.teams-channel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #e8e7f4;
+  color: #464775;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.dispatch-btn {
+  background: #464775;
+  color: white;
+  border: none;
+  padding: 9px 18px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.dispatch-btn:hover { background: #3a3b63; }
+.dispatch-sent { background: var(--success-light); border: 1px solid #86efac; border-radius: var(--radius); padding: 12px; text-align:center; color:var(--success); font-weight:600; font-size:14px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div>
+    <div class="app-header-title">問い合わせ管理</div>
+    <div class="app-header-sub">社内向け・営業・コンサルタント用</div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);color:white" onclick="navigate('info')">ℹ️ ガイド</button>
+    <button class="btn btn-secondary btn-sm" onclick="navigate('new')">＋ 新規登録</button>
+  </div>
+</header>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL: Teams ディスパッチ -->
+<div class="modal-overlay" id="dispatchModal" onclick="closeModalOnOverlay(event,'dispatchModal')">
+  <div class="modal" style="max-width:640px" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📤 開発チームへのディスパッチ（Teams）</div>
+        <div class="modal-subtitle">以下のメッセージを Teams で送信します</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('dispatchModal')">×</button>
+    </div>
+    <div class="modal-body" id="dispatchModalBody"></div>
+  </div>
+</div>
+
+<!-- MODAL: メールから起票 -->
+<div class="modal-overlay" id="emailModal" onclick="closeModalOnOverlay(event,'emailModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📧 メールから起票</div>
+        <div class="modal-subtitle">Outlook 受信トレイの未読メールを取り込みます</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('emailModal')">×</button>
+    </div>
+    <div class="modal-body" id="emailModalBody"></div>
+  </div>
+</div>
+
+<!-- MODAL: 録音から起票 -->
+<div class="modal-overlay" id="recordingModal" onclick="closeModalOnOverlay(event,'recordingModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">🎙️ 録音から起票</div>
+        <div class="modal-subtitle">通話録音ファイルを文字起こし・解析して自動入力します</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('recordingModal')">×</button>
+    </div>
+    <div class="modal-body" id="recordingModalBody"></div>
+  </div>
+</div>
+
+<!-- SCREEN A: LIST -->
+<div id="screen-list" class="screen">
+  <div class="container-wide">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="intake-buttons" style="margin-bottom:0">
+        <button class="btn btn-secondary" onclick="openEmailModal()">📧 メールから起票</button>
+        <button class="btn btn-secondary" onclick="openRecordingModal()">🎙️ 録音から起票</button>
+      </div>
+      <div class="view-toggle">
+        <button class="view-toggle-btn active" id="btnViewList" onclick="setView('list')">☰ リスト</button>
+        <button class="view-toggle-btn" id="btnViewKanban" onclick="setView('kanban')">⬛ カンバン</button>
+      </div>
+    </div>
+    <div class="filter-dropdowns">
+      <select class="filter-select" id="filterGroup" onchange="renderList()">
+        <option value="">全部署</option>
+      </select>
+      <select class="filter-select" id="filterPerson" onchange="renderList()">
+        <option value="">全担当者</option>
+      </select>
+    </div>
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="会社名・タイトルで検索..." oninput="renderList()">
+      </div>
+    </div>
+    <div class="filter-bar" id="filterBar"></div>
+    <div id="statsRow" class="stats-row"></div>
+    <div id="inquiryList" class="list-stack"></div>
+  </div>
+</div>
+
+<!-- SCREEN B: NEW FORM -->
+<div id="screen-new" class="screen">
+  <div class="container" style="max-width:720px">
+    <div class="page-header">
+      <button class="back-btn" onclick="navigate('list')">← 一覧に戻る</button>
+      <h1 class="page-header-title">新規問い合わせ登録</h1>
+    </div>
+    <div class="card" style="padding:24px 28px">
+      <form id="newForm" onsubmit="submitNewForm(event)" novalidate>
+
+        <div class="form-section">
+          <div class="form-section-title">受付情報</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">受付日時</label>
+              <input type="datetime-local" class="form-input" id="f_receivedAt">
+            </div>
+            <div class="form-group">
+              <label class="form-label">担当者</label>
+              <select class="form-select" id="f_assignedTo">
+                <option value="佐藤 花子">佐藤 花子</option>
+                <option value="田中 一郎">田中 一郎</option>
+                <option value="鈴木 次郎">鈴木 次郎</option>
+                <option value="高橋 三枝">高橋 三枝</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">受付経路 <span class="req">*</span></label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="channel" value="phone"> 📞 電話</label>
+                <label class="radio-label"><input type="radio" name="channel" value="email"> 📧 メール</label>
+                <label class="radio-label"><input type="radio" name="channel" value="meeting"> 🤝 対面</label>
+              </div>
+              <span class="form-error" id="err_channel">受付経路を選択してください</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">緊急度</label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="urgency" value="high"> 高</label>
+                <label class="radio-label"><input type="radio" name="urgency" value="medium" checked> 中</label>
+                <label class="radio-label"><input type="radio" name="urgency" value="low"> 低</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">顧客情報</div>
+          <div class="client-badge">🏢 クライアント: <strong id="clientNameDisplay"></strong></div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">部署/グループ <span class="req">*</span></label>
+              <select class="form-select" id="f_clientGroup">
+                <option value="">選択してください</option>
+              </select>
+              <span class="form-error" id="err_clientGroup">部署を選択してください</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">担当者名</label>
+              <input type="text" class="form-input" id="f_clientContact" placeholder="山田 太郎">
+            </div>
+            <div class="form-group">
+              <label class="form-label">メールアドレス</label>
+              <input type="email" class="form-input" id="f_clientEmail" placeholder="example@abc.co.jp">
+            </div>
+            <div class="form-group">
+              <label class="form-label">電話番号</label>
+              <input type="text" class="form-input" id="f_clientPhone" placeholder="03-0000-0000">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">問い合わせ内容</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">質問種別</label>
+              <select class="form-select" id="f_category">
+                <option value="estimate_basis">見積根拠確認</option>
+                <option value="scope">スコープ確認</option>
+                <option value="cost">費用・コスト交渉</option>
+                <option value="change">追加要件・変更</option>
+                <option value="contract">契約条件確認</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">タイトル <span class="req">*</span></label>
+              <input type="text" class="form-input" id="f_title" placeholder="例: 在庫管理システムの刷新について">
+              <span class="form-error" id="err_title">タイトルを入力してください</span>
+            </div>
+            <div class="form-group form-full">
+              <label class="form-label">内容詳細 <span class="req">*</span></label>
+              <textarea class="form-textarea" id="f_summary" rows="5" placeholder="問い合わせの詳細内容を記入してください。&#10;背景、要望、課題など聞いた内容をそのまま記録しましょう。"></textarea>
+              <span class="form-error" id="err_summary">内容を入力してください</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">希望納期</label>
+              <input type="date" class="form-input" id="f_desiredDeadline">
+            </div>
+            <div class="form-group">
+              <label class="form-label">予算感</label>
+              <input type="text" class="form-input" id="f_budget" placeholder="例: 〜500万円、未定">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">社内メモ（初回）</div>
+          <div class="form-grid">
+            <div class="form-group form-full">
+              <label class="form-label">メモ・気になった点</label>
+              <textarea class="form-textarea" id="f_memo" rows="3" placeholder="受けた印象、確認が必要な点、関連しそうな案件など"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">参照見積 ID・バージョン</label>
+              <input type="text" class="form-input" id="f_relatedEstimate" placeholder="例: EST-2026-031 v2.1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">フォローアップ予定日</label>
+              <input type="date" class="form-input" id="f_followUp">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="navigate('list')">キャンセル</button>
+          <button type="submit" class="btn btn-primary">登録する →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: INFO -->
+<div id="screen-info" class="screen">
+  <div class="container" style="max-width:800px">
+    <div class="page-header">
+      <button class="back-btn" onclick="navigate('list')">← 一覧に戻る</button>
+      <h1 class="page-header-title">ガイド・変更履歴</h1>
+    </div>
+    <div class="info-tabs">
+      <button class="info-tab active" onclick="switchInfoTab('usage',this)">📖 使い方</button>
+      <button class="info-tab" onclick="switchInfoTab('issues',this)">📋 残検討事項</button>
+      <button class="info-tab" onclick="switchInfoTab('changelog',this)">🕓 変更履歴</button>
+    </div>
+
+    <!-- 使い方 -->
+    <div class="info-tab-panel active" id="tab-usage">
+      <div class="info-step">
+        <div class="info-step-num">1</div>
+        <div class="info-step-body">
+          <h4>問い合わせを受ける</h4>
+          <p>エンドクライアントから電話・メール・対面で問い合わせを受けます。</p>
+        </div>
+      </div>
+      <div class="info-step">
+        <div class="info-step-num">2</div>
+        <div class="info-step-body">
+          <h4>起票する（3通り）</h4>
+          <ul>
+            <li><strong>📧 メールから起票</strong> — ダッシュボード上部のボタンから未読メールを選択。AIが本文を解析してフォームに自動入力</li>
+            <li><strong>🎙️ 録音から起票</strong> — 通話録音ファイルをアップロード。文字起こし→AI解析→フォーム自動入力</li>
+            <li><strong>＋ 新規登録</strong> — 手動でフォームに入力。受付経路・部署・質問種別などを記録</li>
+          </ul>
+        </div>
+      </div>
+      <div class="info-step">
+        <div class="info-step-num">3</div>
+        <div class="info-step-body">
+          <h4>社内で一次処理する</h4>
+          <ul>
+            <li>詳細画面を開くと<strong>🔍 関連情報</strong>が自動検索される（ファイルサーバー・Teamsチャット・過去メール）</li>
+            <li>確認内容・判断事項は<strong>社内メモ・確認ログ</strong>に随時追記</li>
+            <li>開発チームへの確認が必要な場合は<strong>📤 開発にディスパッチ（Teams）</strong>で一括送信</li>
+            <li>送信後は社内メモに送信ログが自動記録される</li>
+          </ul>
+        </div>
+      </div>
+      <div class="info-step">
+        <div class="info-step-num">4</div>
+        <div class="info-step-body">
+          <h4>回答案を作成する</h4>
+          <ul>
+            <li><strong>🤖 AIで回答案を生成</strong> — 質問種別・問い合わせ内容をもとに回答文を自動生成</li>
+            <li>テンプレート挿入（見積回答・情報確認依頼・中間連絡）から雛形を選択して編集も可能</li>
+            <li>内容を確認・修正後、<strong>📋 コピー</strong>してメール等に貼り付ける</li>
+          </ul>
+        </div>
+      </div>
+      <div class="info-step">
+        <div class="info-step-num">5</div>
+        <div class="info-step-body">
+          <h4>ステータスを更新・完了にする</h4>
+          <ul>
+            <li>回答後は<strong>「✓ 回答済みにする」</strong>ボタンでステータスを変更（回答日時が自動記録）</li>
+            <li>カンバンビューではカードをドラッグ&amp;ドロップしてもステータス変更可能</li>
+            <li>正式クローズは「完了」に変更して履歴を残す</li>
+          </ul>
+        </div>
+      </div>
+      <hr class="divider">
+      <div style="background:var(--primary-light);border:1px solid var(--primary-border);border-radius:var(--radius-lg);padding:16px 20px;font-size:13px">
+        <strong>💡 クライアント社名の変更方法</strong><br>
+        <code style="background:white;padding:2px 6px;border-radius:3px;font-size:12px">index.html</code> の先頭付近にある
+        <code style="background:white;padding:2px 6px;border-radius:3px;font-size:12px">const CLIENT_NAME = 'ABC株式会社';</code>
+        を実際のクライアント名に書き換えてください。
+      </div>
+    </div>
+
+    <!-- 残検討事項 -->
+    <div class="info-tab-panel" id="tab-issues">
+      <p style="font-size:13px;color:var(--text-sub);margin-bottom:20px">本MOCは社内反応確認フェーズです。本番実装に向けて以下を検討・決定する必要があります。</p>
+
+      <div class="issue-card">
+        <div class="issue-card-title">🔗 システム連携</div>
+        <div class="issue-item"><span class="issue-priority prio-high">高</span><div><strong>Outlook API連携</strong> — 現在はモック。Microsoft Graph APIを使い実際の未読メールを取得・解析する実装が必要</div></div>
+        <div class="issue-item"><span class="issue-priority prio-high">高</span><div><strong>音声文字起こし（Whisper等）</strong> — 現在はモック。OpenAI Whisper APIまたはAzure Speech Serviceでの実装を検討</div></div>
+        <div class="issue-item"><span class="issue-priority prio-high">高</span><div><strong>Teams Incoming Webhook</strong> — 現在はモック。Teams の Incoming Webhook または Graph API で実際にメッセージ送信する実装が必要</div></div>
+        <div class="issue-item"><span class="issue-priority prio-med">中</span><div><strong>ファイルサーバー検索</strong> — 現在はモック。SharePoint/OneDrive API または社内ファイルサーバーの検索API連携を検討</div></div>
+        <div class="issue-item"><span class="issue-priority prio-med">中</span><div><strong>AI回答案生成（Claude/GPT）</strong> — 現在はモック文章。Anthropic Claude APIなどで実際の問い合わせ内容をもとに生成する実装</div></div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-card-title">🗄️ データ基盤</div>
+        <div class="issue-item"><span class="issue-priority prio-high">高</span><div><strong>データ永続化</strong> — 現在はブラウザ内メモリのみ（リロードで消える）。バックエンドDB（PostgreSQL等）またはAirtable/Notionとの連携を検討</div></div>
+        <div class="issue-item"><span class="issue-priority prio-high">高</span><div><strong>バックエンドAPI</strong> — 現在はフロントエンドのみ。Node.js/Python等のAPIサーバーが必要（または BaaS: Supabase/Firebase等）</div></div>
+        <div class="issue-item"><span class="issue-priority prio-med">中</span><div><strong>認証・権限管理</strong> — 現在は誰でも全データにアクセス可能。Microsoft Entra ID（Azure AD）SSO連携を推奨</div></div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-card-title">✨ 機能拡張</div>
+        <div class="issue-item"><span class="issue-priority prio-med">中</span><div><strong>フォローアップ通知</strong> — 期限超過時にTeams/メールで担当者に自動通知する仕組みが必要</div></div>
+        <div class="issue-item"><span class="issue-priority prio-med">中</span><div><strong>部署・担当者マスター管理</strong> — 現在はGROUPS配列でハードコード。管理画面から追加・編集できる仕組みに</div></div>
+        <div class="issue-item"><span class="issue-priority prio-low">低</span><div><strong>集計・レポート出力</strong> — 部署別・期間別の問い合わせ件数・平均対応時間などのレポートをExcel/PDF出力</div></div>
+        <div class="issue-item"><span class="issue-priority prio-low">低</span><div><strong>モバイル対応強化</strong> — スマートフォンからの参照・ステータス変更に対応するレスポンシブ改善</div></div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-card-title">❓ 要件確認が必要な事項</div>
+        <div class="issue-item"><span class="issue-priority prio-high">要確認</span><div><strong>メールの受け取り方</strong> — 専用メールアドレスへの問い合わせか、個人メールを監視するか</div></div>
+        <div class="issue-item"><span class="issue-priority prio-high">要確認</span><div><strong>開発チームとのディスパッチ先</strong> — Teamsの特定チャンネル？ 個人メンション？ 運用ルールの決定が必要</div></div>
+        <div class="issue-item"><span class="issue-priority prio-med">要確認</span><div><strong>過去データの移行</strong> — 既存のメール・チャットの問い合わせ履歴をどこまで移行するか</div></div>
+      </div>
+    </div>
+
+    <!-- 変更履歴 -->
+    <div class="info-tab-panel" id="tab-changelog">
+      <table class="changelog-table">
+        <thead>
+          <tr><th>バージョン</th><th>日付</th><th>変更内容</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="ver-badge">v0.5</span></td>
+            <td style="white-space:nowrap;color:var(--text-sub)">2026-06-06</td>
+            <td>
+              <span class="change-tag tag-feat">機能</span>カンバンボード（ドラッグ&amp;ドロップ）追加<br>
+              <span class="change-tag tag-feat">機能</span>部署/担当者フィルター追加<br>
+              <span class="change-tag tag-data">データ</span>エンドクライアント一社固定に変更・部署フィールド追加<br>
+              <span class="change-tag tag-feat">機能</span>ガイド・残検討事項・変更履歴ページ追加
+            </td>
+          </tr>
+          <tr>
+            <td><span class="ver-badge">v0.4</span></td>
+            <td style="white-space:nowrap;color:var(--text-sub)">2026-06-06</td>
+            <td>
+              <span class="change-tag tag-feat">機能</span>🔍 関連情報パネル（ファイルサーバー・Teams・過去メール）追加<br>
+              <span class="change-tag tag-feat">機能</span>🤖 AI回答案自動生成（質問種別別テンプレート）<br>
+              <span class="change-tag tag-feat">機能</span>📤 Teamsディスパッチモーダル（プレビュー・編集・メモ自動記録）
+            </td>
+          </tr>
+          <tr>
+            <td><span class="ver-badge">v0.3</span></td>
+            <td style="white-space:nowrap;color:var(--text-sub)">2026-06-06</td>
+            <td>
+              <span class="change-tag tag-feat">機能</span>📧 メールからの自動起票（AI解析シミュレーション）<br>
+              <span class="change-tag tag-feat">機能</span>🎙️ 録音ファイルからの自動起票（文字起こしシミュレーション）<br>
+              <span class="change-tag tag-feat">機能</span>フォーム自動入力・黄色ハイライト表示
+            </td>
+          </tr>
+          <tr>
+            <td><span class="ver-badge">v0.2</span></td>
+            <td style="white-space:nowrap;color:var(--text-sub)">2026-06-06</td>
+            <td>
+              <span class="change-tag tag-data">データ</span>モックデータをシステム刷新プロジェクト見積関連に特化<br>
+              <span class="change-tag tag-feat">機能</span>カテゴリ→「質問種別」に変更（見積根拠・スコープ・コスト交渉等）<br>
+              <span class="change-tag tag-feat">機能</span>参照見積バージョン入力欄追加
+            </td>
+          </tr>
+          <tr>
+            <td><span class="ver-badge">v0.1</span></td>
+            <td style="white-space:nowrap;color:var(--text-sub)">2026-06-06</td>
+            <td>
+              <span class="change-tag tag-feat">機能</span>初期MOC作成（3画面SPA: 一覧・登録フォーム・詳細）<br>
+              <span class="change-tag tag-feat">機能</span>ステータス管理・社内メモ・回答ドラフトの基本フロー<br>
+              <span class="change-tag tag-feat">機能</span>回答テンプレート3種・クリップボードコピー
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN C: DETAIL -->
+<div id="screen-detail" class="screen">
+  <div class="container-wide">
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<script>
+// === MOCK DATA ===
+const CLIENT_NAME = 'ABC株式会社';  // ← ここにエンドクライアント名を設定
+const GROUPS = ['経営企画部', 'IT推進室', '情報システム部', '事業推進部', 'DX推進部', '購買・調達部', '総務部', '製造管理部'];
+
+const CATEGORIES = {
+  estimate_basis: '見積根拠確認',
+  scope: 'スコープ確認',
+  cost: '費用・コスト交渉',
+  change: '追加要件・変更',
+  contract: '契約条件確認',
+  other: 'その他'
+};
+const CHANNELS = { phone: '📞 電話', email: '📧 メール', meeting: '🤝 対面' };
+const STATUSES = {
+  new: { label: '新規受付', color: '#2563eb', cls: 'badge-new' },
+  investigating: { label: '社内確認中', color: '#d97706', cls: 'badge-investigating' },
+  drafting: { label: '回答準備中', color: '#7c3aed', cls: 'badge-drafting' },
+  responded: { label: '回答済み', color: '#0891b2', cls: 'badge-responded' },
+  closed: { label: '完了', color: '#16a34a', cls: 'badge-closed' },
+  declined: { label: '見送り', color: '#6b7280', cls: 'badge-declined' }
+};
+const STATUS_TRANSITIONS = {
+  new: ['investigating', 'declined'],
+  investigating: ['drafting', 'declined'],
+  drafting: ['responded'],
+  responded: ['closed'],
+  closed: [],
+  declined: []
+};
+const URGENCY = { high: '高', medium: '中', low: '低' };
+
+let idCounter = 9;
+function newId() { return `INQ-2026-0${String(idCounter++).padStart(2,'0')}`; }
+
+let inquiries = [
+  {
+    id: 'INQ-2026-001',
+    createdAt: '2026-06-05T10:15',
+    updatedAt: '2026-06-05T10:15',
+    status: 'new',
+    clientName: CLIENT_NAME,
+    clientGroup: '経営企画部',
+    clientContact: '木村 誠',
+    clientEmail: 'kimura@abc.co.jp',
+    clientPhone: '03-1111-2222',
+    incomingChannel: 'phone',
+    assignedTo: '佐藤 花子',
+    category: 'estimate_basis',
+    title: '基幹システム刷新 — 設計工数8人月の根拠説明を求められた',
+    summary: '提出した見積もり（EST-2026-031）の設計フェーズが8人月となっているが、なぜそれほどかかるのか根拠を説明してほしいとの連絡。\n先方の担当者は「同規模の他社案件では4人月だった」と言っている。\n比較対象が何かは不明。来週の役員報告前に回答が欲しいとのこと。',
+    urgency: 'high',
+    desiredDeadline: '2026-06-11',
+    estimatedBudget: '承認済み予算: 8,000万円',
+    internalNotes: [],
+    relatedEstimateIds: 'EST-2026-031 v2.1',
+    relatedProjectIds: '',
+    responseDraft: '',
+    respondedAt: null,
+    followUpDate: '2026-06-09'
+  },
+  {
+    id: 'INQ-2026-002',
+    createdAt: '2026-06-04T14:30',
+    updatedAt: '2026-06-04T14:30',
+    status: 'new',
+    clientName: CLIENT_NAME,
+    clientGroup: 'IT推進室',
+    clientContact: '丸山 浩二',
+    clientEmail: 'maruyama@abc.co.jp',
+    clientPhone: '06-3333-4444',
+    incomingChannel: 'email',
+    assignedTo: '田中 一郎',
+    category: 'scope',
+    title: '生産管理システム刷新 — データ移行はスコープ内か確認',
+    summary: 'メールにてお問い合わせ。見積書（EST-2026-028）に「データ移行」の記載があるが、移行対象データの範囲が不明確とのこと。\n具体的には「過去10年分の生産実績データ（約500万件）」が対象に含まれるかどうかを確認したい。\nまた、移行前のデータクレンジングは誰が実施するのかについても聞いている。',
+    urgency: 'medium',
+    desiredDeadline: '2026-06-13',
+    estimatedBudget: '3,500万円（固定）',
+    internalNotes: [],
+    relatedEstimateIds: 'EST-2026-028 v1.3',
+    relatedProjectIds: '',
+    responseDraft: '',
+    respondedAt: null,
+    followUpDate: '2026-06-10'
+  },
+  {
+    id: 'INQ-2026-003',
+    createdAt: '2026-05-29T11:00',
+    updatedAt: '2026-06-03T16:30',
+    status: 'investigating',
+    clientName: CLIENT_NAME,
+    clientGroup: '情報システム部',
+    clientContact: '遠藤 早苗',
+    clientEmail: 'endo@abc.co.jp',
+    clientPhone: '011-555-6666',
+    incomingChannel: 'phone',
+    assignedTo: '佐藤 花子',
+    category: 'cost',
+    title: '販売管理刷新 — 競合他社より2,000万円高い。値引き交渉',
+    summary: '競合A社の見積もりが弊社より約2,000万円低いとのことで、価格差の説明と値引き対応が可能かを問い合わせてきた。\n先方は「機能的には同等に見える。なぜ差があるのか」と言っている。\n競合の見積書は未確認。テスト工程の有無や品質保証範囲が違う可能性がある。',
+    urgency: 'high',
+    desiredDeadline: '2026-06-10',
+    estimatedBudget: '5,200万円（弊社提示）',
+    internalNotes: [
+      { at: '2026-05-30T10:00', author: '佐藤 花子', text: '競合はA社と思われる。A社は結合テスト・UAT支援を別途オプション扱いにしている場合が多い。その分安く見える可能性が高い。開発の山本さんにテスト工程の工数内訳を整理してもらうよう依頼した。' },
+      { at: '2026-06-03T16:30', author: '佐藤 花子', text: '山本さんより内訳確認済み。テスト工程だけで8人月。A社見積もりを入手できれば比較資料が作れる。先方に競合見積書の共有を依頼することを検討中。' }
+    ],
+    relatedEstimateIds: 'EST-2026-019 v3.0',
+    relatedProjectIds: '',
+    responseDraft: '',
+    respondedAt: null,
+    followUpDate: '2026-06-07'
+  },
+  {
+    id: 'INQ-2026-004',
+    createdAt: '2026-06-03T09:00',
+    updatedAt: '2026-06-03T09:00',
+    status: 'investigating',
+    clientName: CLIENT_NAME,
+    clientGroup: '事業推進部',
+    clientContact: '中島 博',
+    clientEmail: 'nakajima@abc.co.jp',
+    clientPhone: '045-777-8888',
+    incomingChannel: 'meeting',
+    assignedTo: '鈴木 次郎',
+    category: 'scope',
+    title: '電子カルテ連携刷新 — フェーズ2のスコープが不明確との指摘',
+    summary: '対面MTGにて、見積書（EST-2025-044）のフェーズ2「外部システム連携」の対象範囲について質問を受けた。\n先方は「検査システムとの連携はフェーズ2に含まれると思っていたが、見積書に記載がない」と指摘。\nフェーズ1（電子カルテ本体）とフェーズ2（連携）の境界線を明確にしてほしいとのこと。\nチェックリスト形式でスコープを整理した資料を求められた。',
+    urgency: 'medium',
+    desiredDeadline: '2026-06-17',
+    estimatedBudget: '6,000万円（フェーズ1+2合計）',
+    internalNotes: [
+      { at: '2026-06-03T15:00', author: '鈴木 次郎', text: '要件定義書の付属資料「連携一覧」を確認。検査システム（検査機器メーカー製）はフェーズ2の対象として記載はあるが、見積書本体には反映されていないことが判明。開発に確認中。' }
+    ],
+    relatedEstimateIds: 'EST-2025-044 v2.0',
+    relatedProjectIds: 'PROJ-2025-011',
+    responseDraft: '',
+    respondedAt: null,
+    followUpDate: '2026-06-12'
+  },
+  {
+    id: 'INQ-2026-005',
+    createdAt: '2026-05-21T13:00',
+    updatedAt: '2026-06-02T11:00',
+    status: 'drafting',
+    clientName: CLIENT_NAME,
+    clientGroup: 'DX推進部',
+    clientContact: '後藤 明子',
+    clientEmail: 'goto@abc.co.jp',
+    clientPhone: '03-9999-0000',
+    incomingChannel: 'email',
+    assignedTo: '高橋 三枝',
+    category: 'change',
+    title: 'ERP刷新 — 追加要件（モバイル対応）の費用を知りたい',
+    summary: 'メールにて。当初スコープに含まれていなかった「スマートフォン対応（承認ワークフロー）」を追加したい場合の追加費用を教えてほしいとのこと。\n対象業務は「購買承認」「経費精算承認」の2ワークフロー。\niOSとAndroid両対応が必要。既存のWeb画面をレスポンシブ化するのか、ネイティブアプリを作るのかは先方に決定権がある。',
+    urgency: 'medium',
+    desiredDeadline: '2026-06-15',
+    estimatedBudget: '追加予算: 〜500万円まで',
+    internalNotes: [
+      { at: '2026-05-23T10:00', author: '高橋 三枝', text: 'レスポンシブ対応（PWA）とネイティブアプリの両パターンで概算を開発に依頼した。' },
+      { at: '2026-06-02T11:00', author: '高橋 三枝', text: '開発から回答あり。PWA対応: 約180万円・2ヶ月。ネイティブ(iOS+Android): 約420万円・4ヶ月。先方の予算内に収まるのでどちらでも対応可能。回答ドラフト作成中。' }
+    ],
+    relatedEstimateIds: 'EST-2026-007 v4.1',
+    relatedProjectIds: 'PROJ-2026-003',
+    responseDraft: '株式会社フォーリーフ\n後藤 明子 様\n\nいつもお世話になっております。\n高橋でございます。\n\n「スマートフォン対応（承認ワークフロー）」の追加費用につきまして、2パターンご提案いたします。\n\n【パターンA: PWA（レスポンシブ）対応】\n追加費用: 約180万円\n期間: 約2ヶ月\n概要: 既存WebシステムをスマートフォンブラウザからそのままでもAcc使いやすくする対応です。アプリのインストール不要でご利用いただけます。\n\n【パターンB: ネイティブアプリ（iOS / Android）】\n追加費用: 約420万円\n期間: 約4ヶ月\n概要: App Store / Google Playからインストールするネイティブアプリを開発します。オフライン操作やプッシュ通知など、より高度な機能が実現できます。\n\nいずれのパターンも対象業務（購買承認・経費精算承認）の2ワークフローを含みます。\n\nご要望や優先事項をお聞かせいただければ、詳細なご提案資料を作成いたします。',
+    respondedAt: null,
+    followUpDate: '2026-06-08'
+  },
+  {
+    id: 'INQ-2026-006',
+    createdAt: '2026-05-12T10:00',
+    updatedAt: '2026-05-28T17:00',
+    status: 'responded',
+    clientName: CLIENT_NAME,
+    clientGroup: '情報システム部',
+    clientContact: '小林 哲也',
+    clientEmail: 'kobayashi@abc.co.jp',
+    clientPhone: '052-123-4567',
+    incomingChannel: 'phone',
+    assignedTo: '田中 一郎',
+    category: 'estimate_basis',
+    title: '生産ラインシステム刷新 — 結合テスト3人月の根拠',
+    summary: '見積書（EST-2026-014）の結合テスト工程が3人月となっているが、前回の類似プロジェクトでは1.5人月だったとのこと。今回なぜ倍になっているのか説明してほしい。',
+    urgency: 'medium',
+    desiredDeadline: '2026-05-28',
+    estimatedBudget: '4,800万円',
+    internalNotes: [
+      { at: '2026-05-14T10:00', author: '田中 一郎', text: '前回案件（PROJ-2023-027）と比較。今回はPLC連携が追加されており、実機テスト環境の準備・調整で1人月増。さらに24時間稼働要件による夜間テストで0.5人月増。合計1.5人月増加の説明ができた。' }
+    ],
+    relatedEstimateIds: 'EST-2026-014 v2.0',
+    relatedProjectIds: 'PROJ-2023-027',
+    responseDraft: '',
+    respondedAt: '2026-05-28T17:00',
+    followUpDate: ''
+  },
+  {
+    id: 'INQ-2026-007',
+    createdAt: '2026-04-18T09:00',
+    updatedAt: '2026-05-10T12:00',
+    status: 'closed',
+    clientName: CLIENT_NAME,
+    clientGroup: '総務部',
+    clientContact: '南部 正樹',
+    clientEmail: 'nanbu@abc.co.jp',
+    clientPhone: '098-234-5678',
+    incomingChannel: 'meeting',
+    assignedTo: '佐藤 花子',
+    category: 'contract',
+    title: '受発注システム刷新 — 瑕疵担保期間と保証範囲の確認',
+    summary: '対面MTGで契約条件について質問を受けた。特に「瑕疵担保責任期間（納品後1年）」の起算点と、保証対象の範囲について。\n先方の顧問弁護士から「仕様変更後の不具合も保証対象になるか」という具体的な問いかけがあった。',
+    urgency: 'high',
+    desiredDeadline: '2026-04-25',
+    estimatedBudget: '2,200万円',
+    internalNotes: [
+      { at: '2026-04-20T11:00', author: '佐藤 花子', text: '法務・管理部に確認。瑕疵担保期間の起算点は「最終検収完了日」。仕様変更後の不具合は変更後の仕様に基づいて保証。変更前に既知のバグは含まない。法務部長に確認・承認済み。' },
+      { at: '2026-05-10T12:00', author: '佐藤 花子', text: '契約締結完了。プロジェクト開始。PROJ-2026-008として管理。' }
+    ],
+    relatedEstimateIds: 'EST-2026-003 v1.0',
+    relatedProjectIds: 'PROJ-2026-008',
+    responseDraft: '',
+    respondedAt: '2026-04-25T14:00',
+    followUpDate: ''
+  },
+  {
+    id: 'INQ-2026-008',
+    createdAt: '2026-05-20T15:00',
+    updatedAt: '2026-05-26T10:00',
+    status: 'declined',
+    clientName: CLIENT_NAME,
+    clientGroup: '購買・調達部',
+    clientContact: '渡辺 一哉',
+    clientEmail: 'watanabe@abc.co.jp',
+    clientPhone: '03-8888-7777',
+    incomingChannel: 'email',
+    assignedTo: '鈴木 次郎',
+    category: 'cost',
+    title: '在庫管理システム刷新 — 予算1,000万円以内での対応可否',
+    summary: 'メールにて。提示した見積もり（EST-2026-022: 2,800万円）に対して「予算が1,000万円しか取れなかった。この金額で何か対応できるか」との問い合わせ。\n要件定義書に記載の機能をすべて実現するには大幅なスコープ削減が必要な水準。',
+    urgency: 'low',
+    desiredDeadline: '',
+    estimatedBudget: '1,000万円以内',
+    internalNotes: [
+      { at: '2026-05-26T10:00', author: '鈴木 次郎', text: '1,000万円では要件の30%程度しか実現できず、業務要件を満たさないと判断。SaaS製品（クラウド在庫管理）への切り替えを提案したが、先方は社内カスタマイズが必須とのことでお断り。他ベンダーの紹介も検討したが希望なし。見送りに。' }
+    ],
+    relatedEstimateIds: 'EST-2026-022 v1.0',
+    relatedProjectIds: '',
+    responseDraft: '',
+    respondedAt: null,
+    followUpDate: ''
+  }
+];
+
+// === STATE ===
+let currentFilter = 'all';
+let currentDetailId = null;
+let currentView = 'list';
+let dragId = null;
+
+// === ROUTER ===
+function navigate(path, replace = false) {
+  const hash = '#' + path;
+  if (replace) history.replaceState(null, '', hash);
+  else history.pushState(null, '', hash);
+  route();
+}
+
+function route() {
+  const hash = location.hash.replace('#', '') || 'list';
+  const screens = document.querySelectorAll('.screen');
+  screens.forEach(s => s.classList.remove('active'));
+
+  if (hash === 'list') {
+    document.getElementById('screen-list').classList.add('active');
+    renderList();
+  } else if (hash === 'new') {
+    document.getElementById('screen-new').classList.add('active');
+    initForm();
+  } else if (hash === 'info') {
+    document.getElementById('screen-info').classList.add('active');
+  } else if (hash.startsWith('detail/')) {
+    const id = hash.replace('detail/', '');
+    document.getElementById('screen-detail').classList.add('active');
+    renderDetail(id);
+  } else {
+    navigate('list', true);
+  }
+}
+
+window.addEventListener('hashchange', route);
+window.addEventListener('load', route);
+
+// === SCREEN A: LIST / KANBAN ===
+const STATUS_ORDER = ['all', 'new', 'investigating', 'drafting', 'responded', 'closed', 'declined'];
+const STATUS_LABELS_ALL = { all: '全件', ...Object.fromEntries(Object.entries(STATUSES).map(([k,v]) => [k, v.label])) };
+const KANBAN_COLS = ['new', 'investigating', 'drafting', 'responded'];
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('btnViewList').classList.toggle('active', v === 'list');
+  document.getElementById('btnViewKanban').classList.toggle('active', v === 'kanban');
+  renderList();
+}
+
+function getFilteredList() {
+  const q = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+  const grp = document.getElementById('filterGroup')?.value || '';
+  const person = document.getElementById('filterPerson')?.value || '';
+  let list = inquiries.filter(i => currentFilter === 'all' || i.status === currentFilter);
+  if (grp) list = list.filter(i => i.clientGroup === grp);
+  if (person) list = list.filter(i => i.clientContact === person);
+  if (q) list = list.filter(i => (i.clientGroup||'').toLowerCase().includes(q) || i.title.toLowerCase().includes(q) || (i.clientContact||'').toLowerCase().includes(q));
+  return [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
+function populateFilterDropdowns() {
+  const grpSel = document.getElementById('filterGroup');
+  const perSel = document.getElementById('filterPerson');
+  if (!grpSel || !perSel) return;
+  const curGrp = grpSel.value, curPer = perSel.value;
+  const grps = [...new Set(inquiries.map(i => i.clientGroup).filter(Boolean))].sort();
+  const pers = [...new Set(inquiries.map(i => i.clientContact).filter(Boolean))].sort();
+  grpSel.innerHTML = `<option value="">全部署</option>` + grps.map(g => `<option value="${esc(g)}"${g===curGrp?' selected':''}>${esc(g)}</option>`).join('');
+  perSel.innerHTML = `<option value="">全担当者</option>` + pers.map(p => `<option value="${esc(p)}"${p===curPer?' selected':''}>${esc(p)}</option>`).join('');
+}
+
+function renderList() {
+  populateFilterDropdowns();
+  if (currentView === 'kanban') { renderKanban(); return; }
+
+  // Filter tabs
+  const filterBar = document.getElementById('filterBar');
+  filterBar.innerHTML = STATUS_ORDER.map(s => {
+    const count = s === 'all' ? inquiries.length : inquiries.filter(i => i.status === s).length;
+    return `<button class="filter-tab${currentFilter === s ? ' active' : ''}" onclick="setFilter('${s}')">
+      ${STATUS_LABELS_ALL[s]}<span class="tab-count">${count}</span>
+    </button>`;
+  }).join('');
+
+  const list = getFilteredList();
+  const urgent = inquiries.filter(i => !['closed','declined','responded'].includes(i.status)).length;
+  const overdue = inquiries.filter(i => i.followUpDate && new Date(i.followUpDate) < new Date() && !['closed','declined'].includes(i.status)).length;
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-chip">件数: <strong>${list.length}</strong> 件表示</div>
+    <div class="stat-chip${urgent > 0 ? ' alert' : ''}">要対応: <strong>${urgent}</strong> 件</div>
+    ${overdue > 0 ? `<div class="stat-chip alert">期限超過: <strong>${overdue}</strong> 件</div>` : ''}
+  `;
+
+  const container = document.getElementById('inquiryList');
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">該当する問い合わせはありません</div></div>`;
+    return;
+  }
+  container.innerHTML = list.map(i => {
+    const st = STATUSES[i.status];
+    const od = i.followUpDate && new Date(i.followUpDate) < new Date() && !['closed','declined'].includes(i.status);
+    return `<div class="inquiry-card" onclick="navigate('detail/${i.id}')">
+      <div class="card-row1">
+        <span class="card-id">${i.id}</span>
+        <span class="badge ${st.cls}">${st.label}</span>
+        <span class="urgency-${i.urgency}">${URGENCY[i.urgency]}</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--text-muted)">${CHANNELS[i.incomingChannel] || ''}</span>
+      </div>
+      <div class="card-row2"><div class="card-title">${esc(i.title)}</div></div>
+      <div class="card-row3">
+        <span class="card-client" style="color:var(--primary)">🏢 ${esc(i.clientGroup || '')}</span>
+        <span class="card-meta-item">👤 ${esc(i.clientContact || '')}</span>
+        <span class="card-meta-item">📅 ${fmtDate(i.createdAt)}</span>
+        ${i.followUpDate ? `<span class="card-meta-item${od?' overdue':''}">⏰ ${i.followUpDate}${od?' ⚠️':''}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(s) {
+  currentFilter = s;
+  renderList();
+}
+
+// === KANBAN ===
+function renderKanban() {
+  document.getElementById('filterBar').innerHTML = '';
+  document.getElementById('statsRow').innerHTML = '';
+  const allList = getFilteredList();
+  const archived = allList.filter(i => ['closed','declined'].includes(i.status));
+
+  const board = `<div class="kanban-wrap">
+    <div class="kanban-board" id="kanbanBoard">
+      ${KANBAN_COLS.map(s => {
+        const st = STATUSES[s];
+        const cards = allList.filter(i => i.status === s);
+        return `<div class="kanban-column">
+          <div class="kanban-col-header" style="--col-color:${st.color}">
+            <span class="kanban-col-title">${st.label}</span>
+            <span class="kanban-col-count">${cards.length}</span>
+          </div>
+          <div class="kanban-col-body" id="col-${s}"
+            ondragover="kanbanDragOver(event,'${s}')"
+            ondragleave="kanbanDragLeave(event)"
+            ondrop="kanbanDrop(event,'${s}')">
+            ${cards.length === 0
+              ? `<div class="kanban-empty">なし</div>`
+              : cards.map(i => kanbanCardHtml(i)).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    ${archived.length > 0 ? `
+    <div class="kanban-archived">
+      <div class="kanban-archived-title">完了・見送り（${archived.length}件）</div>
+      <div class="kanban-archived-list">
+        ${archived.map(i => `<span class="kanban-archived-chip" onclick="navigate('detail/${i.id}')">${esc(i.id)} ${esc(i.clientGroup||'')} — ${esc(i.title.slice(0,20))}…</span>`).join('')}
+      </div>
+    </div>` : ''}
+  </div>`;
+
+  document.getElementById('inquiryList').innerHTML = board;
+}
+
+function kanbanCardHtml(i) {
+  const od = i.followUpDate && new Date(i.followUpDate) < new Date() && !['closed','declined'].includes(i.status);
+  return `<div class="kanban-card" draggable="true"
+    ondragstart="kanbanDragStart(event,'${i.id}')"
+    ondragend="kanbanDragEnd(event)"
+    onclick="navigate('detail/${i.id}')">
+    <div class="kanban-card-badges">
+      <span class="urgency-${i.urgency}">${URGENCY[i.urgency]}</span>
+    </div>
+    <div class="kanban-card-title">${esc(i.title)}</div>
+    <div class="kanban-card-group">🏢 ${esc(i.clientGroup||'')} / ${esc(i.clientContact||'')}</div>
+    <div class="kanban-card-meta">
+      📅 ${fmtDate(i.createdAt)}
+      ${i.followUpDate ? ` ⏰ <span class="${od?'overdue':''}">${i.followUpDate}${od?' ⚠️':''}</span>` : ''}
+    </div>
+  </div>`;
+}
+
+function kanbanDragStart(e, id) {
+  dragId = id;
+  setTimeout(() => { const el = e.target; if (el) el.classList.add('dragging'); }, 0);
+}
+function kanbanDragEnd(e) {
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.kanban-col-body').forEach(c => c.classList.remove('drag-over'));
+}
+function kanbanDragOver(e, status) {
+  e.preventDefault();
+  const col = document.getElementById('col-' + status);
+  if (col) col.classList.add('drag-over');
+}
+function kanbanDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+function kanbanDrop(e, newStatus) {
+  e.preventDefault();
+  document.querySelectorAll('.kanban-col-body').forEach(c => c.classList.remove('drag-over'));
+  if (!dragId) return;
+  const inq = inquiries.find(i => i.id === dragId);
+  if (!inq || inq.status === newStatus) return;
+  const allowed = STATUS_TRANSITIONS[inq.status] || [];
+  if (!allowed.includes(newStatus)) {
+    showToast(`「${STATUSES[inq.status].label}」から「${STATUSES[newStatus].label}」への変更はできません`, 'error');
+    dragId = null; return;
+  }
+  inq.status = newStatus;
+  inq.updatedAt = new Date().toISOString().slice(0,16);
+  showToast(`「${STATUSES[newStatus].label}」に変更しました`, 'success');
+  dragId = null;
+  renderKanban();
+}
+
+// === SCREEN B: FORM ===
+function initForm() {
+  const form = document.getElementById('newForm');
+  form.reset();
+  const now = new Date();
+  now.setSeconds(0, 0);
+  document.getElementById('f_receivedAt').value = now.toISOString().slice(0, 16);
+  const disp = document.getElementById('clientNameDisplay');
+  if (disp) disp.textContent = CLIENT_NAME;
+  const grpSel = document.getElementById('f_clientGroup');
+  if (grpSel) {
+    grpSel.innerHTML = `<option value="">選択してください</option>` + GROUPS.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
+  }
+  document.querySelectorAll('.form-error').forEach(e => e.classList.remove('show'));
+  document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(e => e.classList.remove('error'));
+}
+
+function submitNewForm(e) {
+  e.preventDefault();
+  let valid = true;
+
+  const channel = document.querySelector('input[name=channel]:checked');
+  if (!channel) {
+    document.getElementById('err_channel').classList.add('show');
+    valid = false;
+  } else {
+    document.getElementById('err_channel').classList.remove('show');
+  }
+
+  const clientGroup = document.getElementById('f_clientGroup');
+  if (!clientGroup.value) {
+    document.getElementById('err_clientGroup').classList.add('show');
+    clientGroup.classList.add('error');
+    valid = false;
+  } else {
+    document.getElementById('err_clientGroup').classList.remove('show');
+    clientGroup.classList.remove('error');
+  }
+
+  const title = document.getElementById('f_title');
+  if (!title.value.trim()) {
+    document.getElementById('err_title').classList.add('show');
+    title.classList.add('error');
+    valid = false;
+  } else {
+    document.getElementById('err_title').classList.remove('show');
+    title.classList.remove('error');
+  }
+
+  const summary = document.getElementById('f_summary');
+  if (!summary.value.trim()) {
+    document.getElementById('err_summary').classList.add('show');
+    summary.classList.add('error');
+    valid = false;
+  } else {
+    document.getElementById('err_summary').classList.remove('show');
+    summary.classList.remove('error');
+  }
+
+  if (!valid) return;
+
+  const urgencyEl = document.querySelector('input[name=urgency]:checked');
+  const memo = document.getElementById('f_memo').value.trim();
+  const now = new Date().toISOString().slice(0, 16);
+  const assignedTo = document.getElementById('f_assignedTo').value;
+
+  const inquiry = {
+    id: newId(),
+    createdAt: document.getElementById('f_receivedAt').value || now,
+    updatedAt: now,
+    status: 'new',
+    clientName: CLIENT_NAME,
+    clientGroup: document.getElementById('f_clientGroup').value,
+    clientContact: document.getElementById('f_clientContact').value.trim(),
+    clientEmail: document.getElementById('f_clientEmail').value.trim(),
+    clientPhone: document.getElementById('f_clientPhone').value.trim(),
+    incomingChannel: channel.value,
+    assignedTo,
+    category: document.getElementById('f_category').value,
+    title: title.value.trim(),
+    summary: summary.value.trim(),
+    urgency: urgencyEl ? urgencyEl.value : 'medium',
+    desiredDeadline: document.getElementById('f_desiredDeadline').value,
+    estimatedBudget: document.getElementById('f_budget').value.trim(),
+    internalNotes: memo ? [{ at: now, author: assignedTo, text: memo }] : [],
+    relatedEstimateIds: document.getElementById('f_relatedEstimate').value.trim(),
+    relatedProjectIds: '',
+    responseDraft: '',
+    respondedAt: null,
+    followUpDate: document.getElementById('f_followUp').value
+  };
+
+  inquiries.unshift(inquiry);
+  showToast('登録しました', 'success');
+  navigate('detail/' + inquiry.id, true);
+}
+
+// === SCREEN C: DETAIL ===
+function renderDetail(id) {
+  currentDetailId = id;
+  const inq = inquiries.find(i => i.id === id);
+  if (!inq) {
+    document.getElementById('detailContent').innerHTML = '<p style="padding:48px;text-align:center;color:var(--text-sub)">問い合わせが見つかりませんでした。</p>';
+    return;
+  }
+  const st = STATUSES[inq.status];
+  const transitions = STATUS_TRANSITIONS[inq.status];
+  const overdue = inq.followUpDate && new Date(inq.followUpDate) < new Date() && !['closed','declined'].includes(inq.status);
+
+  const memoHtml = inq.internalNotes.length > 0
+    ? `<div class="memo-list">${inq.internalNotes.map((m, idx) => `
+        <div class="memo-item">
+          <div class="memo-meta">${fmtDateTime(m.at)} ｜ ${esc(m.author)}</div>
+          <div class="memo-text">${esc(m.text)}</div>
+        </div>`).join('')}</div>`
+    : `<p style="color:var(--text-muted);font-size:13px;margin-bottom:14px">まだメモはありません</p>`;
+
+  const transitionOptions = transitions.map(s => `
+    <div class="status-option" onclick="changeStatus('${id}','${s}')">
+      <span class="status-dot" style="background:${STATUSES[s].color}"></span>
+      ${STATUSES[s].label}に変更
+    </div>`).join('');
+
+  document.getElementById('detailContent').innerHTML = `
+    <div>
+      <button class="back-btn" onclick="navigate('list')" style="margin-bottom:8px">← 一覧に戻る</button>
+      <div class="detail-header">
+        <div>
+          <div class="detail-badges">
+            <span style="font-family:monospace;font-size:12px;color:var(--text-muted)">${inq.id}</span>
+            <span class="badge ${st.cls}">${st.label}</span>
+            <span class="urgency-${inq.urgency}">${URGENCY[inq.urgency]}</span>
+            ${CHANNELS[inq.incomingChannel] ? `<span style="font-size:13px;color:var(--text-sub)">${CHANNELS[inq.incomingChannel]}</span>` : ''}
+          </div>
+          <h1 class="detail-title">${esc(inq.title)}</h1>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+          ${transitions.length > 0 ? `
+          <div class="status-change-wrap">
+            <button class="btn btn-secondary" onclick="toggleStatusDropdown(event)">ステータス変更 ▾</button>
+            <div class="status-dropdown" id="statusDropdown">
+              ${transitionOptions}
+            </div>
+          </div>` : ''}
+          <button class="btn btn-secondary" style="border-color:#c7c6e8;color:#464775" onclick="openDispatchModal('${id}')">📤 開発にディスパッチ（Teams）</button>
+        </div>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-main">
+
+          <div class="content-box">
+            <div class="content-box-title" style="margin-bottom:12px">問い合わせ内容</div>
+            <div style="font-size:12px;color:var(--text-sub);margin-bottom:8px">質問種別: ${CATEGORIES[inq.category] || inq.category}</div>
+            <div class="content-text">${esc(inq.summary)}</div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-card-header">
+              <span class="content-box-title">🔍 関連情報</span>
+              <button class="btn btn-ghost btn-sm" onclick="searchRelatedInfo('${id}')">再検索</button>
+            </div>
+            <div class="section-card-body" id="relatedInfoBody">
+              <div class="info-searching"><span class="info-search-spinner">⚙️</span>ファイルサーバー・Teams・過去メールを検索中…</div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-card-header">
+              <span class="content-box-title">社内メモ・確認ログ</span>
+              <button class="btn btn-ghost btn-sm" onclick="focusMemoInput()">＋ メモ追加</button>
+            </div>
+            <div class="section-card-body">
+              ${memoHtml}
+              <div class="memo-form">
+                <textarea id="memoInput" placeholder="確認内容・気づき・開発への質問など…" rows="2"></textarea>
+                <button class="btn btn-secondary btn-sm" onclick="addMemo('${id}')" style="align-self:flex-end">追加</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-card-header">
+              <span class="content-box-title">回答ドラフト</span>
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                <button class="btn btn-primary btn-sm" onclick="generateDraftAI('${id}')">🤖 AIで回答案を生成</button>
+                <select class="template-select" onchange="insertTemplate(this,'${id}')">
+                  <option value="">テンプレート挿入…</option>
+                  <option value="estimate">御見積もり回答テンプレート</option>
+                  <option value="confirm">情報確認依頼テンプレート</option>
+                  <option value="interim">社内確認中（中間連絡）テンプレート</option>
+                </select>
+              </div>
+            </div>
+            <div class="section-card-body">
+              <textarea class="draft-area" id="draftArea" placeholder="回答文をここに作成してください…">${esc(inq.responseDraft)}</textarea>
+              <div class="draft-actions">
+                <button class="btn btn-ghost btn-sm" onclick="copyDraft()">📋 コピー</button>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-secondary btn-sm" onclick="saveDraft('${id}')">ドラフト保存</button>
+                  ${['closed','declined','responded'].includes(inq.status) ? '' : `<button class="btn btn-success btn-sm" onclick="markResponded('${id}')">✓ 回答済みにする</button>`}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="detail-side">
+          <div class="info-card">
+            <div class="info-card-title">顧客情報</div>
+            <div class="info-row"><span class="info-label">会社名</span><span class="info-value" style="font-weight:700;color:var(--primary)">${esc(inq.clientName)}</span></div>
+            ${inq.clientGroup ? `<div class="info-row"><span class="info-label">部署</span><span class="info-value">${esc(inq.clientGroup)}</span></div>` : ''}
+            ${inq.clientContact ? `<div class="info-row"><span class="info-label">担当者</span><span class="info-value">${esc(inq.clientContact)}</span></div>` : ''}
+            ${inq.clientEmail ? `<div class="info-row"><span class="info-label">メール</span><span class="info-value"><a href="mailto:${esc(inq.clientEmail)}">${esc(inq.clientEmail)}</a></span></div>` : ''}
+            ${inq.clientPhone ? `<div class="info-row"><span class="info-label">電話</span><span class="info-value">${esc(inq.clientPhone)}</span></div>` : ''}
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-title">受付情報</div>
+            <div class="info-row"><span class="info-label">受付日時</span><span class="info-value">${fmtDateTime(inq.createdAt)}</span></div>
+            <div class="info-row"><span class="info-label">経路</span><span class="info-value">${CHANNELS[inq.incomingChannel] || '—'}</span></div>
+            <div class="info-row"><span class="info-label">担当者</span><span class="info-value">${esc(inq.assignedTo)}</span></div>
+            ${inq.desiredDeadline ? `<div class="info-row"><span class="info-label">希望納期</span><span class="info-value">${inq.desiredDeadline}</span></div>` : ''}
+            ${inq.estimatedBudget ? `<div class="info-row"><span class="info-label">予算感</span><span class="info-value">${esc(inq.estimatedBudget)}</span></div>` : ''}
+            ${inq.followUpDate ? `<div class="info-row"><span class="info-label">フォロー日</span><span class="info-value${overdue ? ' overdue' : ''}">${inq.followUpDate}${overdue ? ' ⚠️' : ''}</span></div>` : ''}
+            ${inq.respondedAt ? `<div class="info-row"><span class="info-label">回答日時</span><span class="info-value">${fmtDateTime(inq.respondedAt)}</span></div>` : ''}
+          </div>
+
+          ${(inq.relatedEstimateIds || inq.relatedProjectIds) ? `
+          <div class="info-card">
+            <div class="info-card-title">関連情報</div>
+            ${inq.relatedEstimateIds ? `<div class="info-row"><span class="info-label">参照見積</span><span class="info-value" style="font-family:monospace;font-size:13px">${esc(inq.relatedEstimateIds)}</span></div>` : ''}
+            ${inq.relatedProjectIds ? `<div class="info-row"><span class="info-label">参照案件</span><span class="info-value" style="font-family:monospace;font-size:13px">${esc(inq.relatedProjectIds)}</span></div>` : ''}
+          </div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  setTimeout(() => searchRelatedInfo(id), 100);
+}
+
+function toggleStatusDropdown(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('statusDropdown');
+  dd.classList.toggle('open');
+}
+
+document.addEventListener('click', () => {
+  const dd = document.getElementById('statusDropdown');
+  if (dd) dd.classList.remove('open');
+});
+
+function changeStatus(id, newStatus) {
+  const inq = inquiries.find(i => i.id === id);
+  if (!inq) return;
+  inq.status = newStatus;
+  inq.updatedAt = new Date().toISOString().slice(0, 16);
+  showToast(`ステータスを「${STATUSES[newStatus].label}」に変更しました`, 'success');
+  renderDetail(id);
+}
+
+function addMemo(id) {
+  const inq = inquiries.find(i => i.id === id);
+  const input = document.getElementById('memoInput');
+  if (!inq || !input || !input.value.trim()) return;
+  inq.internalNotes.push({
+    at: new Date().toISOString().slice(0, 16),
+    author: '佐藤 花子',
+    text: input.value.trim()
+  });
+  inq.updatedAt = new Date().toISOString().slice(0, 16);
+  showToast('メモを追加しました');
+  renderDetail(id);
+}
+
+function focusMemoInput() {
+  const el = document.getElementById('memoInput');
+  if (el) { el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+}
+
+function saveDraft(id) {
+  const inq = inquiries.find(i => i.id === id);
+  const draft = document.getElementById('draftArea');
+  if (!inq || !draft) return;
+  inq.responseDraft = draft.value;
+  inq.updatedAt = new Date().toISOString().slice(0, 16);
+  showToast('ドラフトを保存しました');
+}
+
+function markResponded(id) {
+  const inq = inquiries.find(i => i.id === id);
+  const draft = document.getElementById('draftArea');
+  if (!inq) return;
+  if (draft) inq.responseDraft = draft.value;
+  inq.status = 'responded';
+  inq.respondedAt = new Date().toISOString().slice(0, 16);
+  inq.updatedAt = inq.respondedAt;
+  showToast('回答済みに変更しました', 'success');
+  renderDetail(id);
+}
+
+function copyDraft() {
+  const draft = document.getElementById('draftArea');
+  if (!draft || !draft.value.trim()) { showToast('ドラフトが空です', 'error'); return; }
+  navigator.clipboard.writeText(draft.value).then(() => showToast('クリップボードにコピーしました'));
+}
+
+const TEMPLATES = {
+  estimate: (inq) => `${inq.clientName}\n${inq.clientContact ? inq.clientContact + ' 様\n' : ''}\nいつもお世話になっております。\n〇〇株式会社、${inq.assignedTo}でございます。\n\nこの度は「${inq.title}」についてお問い合わせいただき、誠にありがとうございます。\n\n社内で検討いたしました結果、以下のとおりご回答申し上げます。\n\n【ご提案概要】\n（ここに提案内容を記載）\n\n【概算費用】\n（ここに費用を記載）\n\n詳細につきましては、別途お打ち合わせの機会をいただけますでしょうか。\nご都合のよい日時をいくつかお知らせください。\n\nよろしくお願いいたします。`,
+  confirm: (inq) => `${inq.clientName}\n${inq.clientContact ? inq.clientContact + ' 様\n' : ''}\nいつもお世話になっております。\n〇〇株式会社、${inq.assignedTo}でございます。\n\nこの度は「${inq.title}」についてお問い合わせいただき、誠にありがとうございます。\n\n正確なご回答をするにあたり、以下の点についてご確認させていただけますでしょうか。\n\n【確認事項】\n1. \n2. \n3. \n\nご多忙のところ恐れ入りますが、ご確認よろしくお願いいたします。`,
+  interim: (inq) => `${inq.clientName}\n${inq.clientContact ? inq.clientContact + ' 様\n' : ''}\nいつもお世話になっております。\n〇〇株式会社、${inq.assignedTo}でございます。\n\n先日お問い合わせいただきました「${inq.title}」につきまして、現在社内にて確認を進めております。\n\n回答までに今しばらくお時間をいただく予定でございます。\n（目安: ）\n\nお待たせして大変申し訳ございませんが、今しばらくお待ちいただけますようお願いいたします。`
+};
+
+function insertTemplate(select, id) {
+  const key = select.value;
+  if (!key) return;
+  const inq = inquiries.find(i => i.id === id);
+  const draft = document.getElementById('draftArea');
+  if (!inq || !draft) return;
+  if (draft.value.trim() && !confirm('現在のドラフトを上書きしてよろしいですか？')) {
+    select.value = '';
+    return;
+  }
+  draft.value = TEMPLATES[key](inq);
+  select.value = '';
+}
+
+// === RELATED INFO ===
+const RELATED_INFO_DB = {
+  estimate_basis: {
+    fileServer: [
+      { icon: '📊', name: '工数見積根拠_説明資料テンプレート.docx', path: '\\\\fileserver\\営業資料\\テンプレート\\見積根拠\\', date: '2025-12-10', relevance: '工数根拠の説明に活用できます' },
+      { icon: '📋', name: '設計工程_作業内訳チェックリスト.xlsx', path: '\\\\fileserver\\開発標準\\工数管理\\', date: '2026-01-15', relevance: '設計フェーズの標準内訳を記載' }
+    ],
+    teams: [
+      { author: '山本（開発PM）', date: '2026-05-20', content: '設計工数の内訳は要件定義2M・基本設計3M・詳細設計3Mが標準。今回はDB移行設計が複雑なので基本設計だけで2Mかかった。資料は「開発部 > 案件相談」チャンネルにあります。', channel: '開発部 > 案件相談' },
+      { author: '佐藤（営業）', date: '2026-04-08', content: '先月の〇〇製造さんでも同じ質問があった。テスト工程が他社と比較して厚いのが主因。説明資料を共有しておきます。', channel: '営業部 > 案件情報共有' }
+    ],
+    pastEmails: [
+      { subject: '【工数根拠ご説明】基幹システム刷新の件（▲▲株式会社様）', date: '2025-11-15', to: '▲▲株式会社 田村様', relevance: '類似案件での工数説明メール。テンプレートとして活用可' },
+      { subject: 'Re: 見積もりについてご確認（◆◆工業様）', date: '2025-09-03', to: '◆◆工業 佐々木様', relevance: '設計8人月の根拠説明。先方に納得いただけた事例' }
+    ]
+  },
+  scope: {
+    fileServer: [
+      { icon: '📄', name: 'スコープ定義書_テンプレート.docx', path: '\\\\fileserver\\営業資料\\テンプレート\\スコープ管理\\', date: '2026-02-20', relevance: 'スコープ範囲を明確化する際の雛形' },
+      { icon: '📊', name: '対象範囲一覧（スコープin_out）.xlsx', path: '\\\\fileserver\\営業資料\\テンプレート\\スコープ管理\\', date: '2026-03-01', relevance: 'スコープ内外を表形式で整理するテンプレート' }
+    ],
+    teams: [
+      { author: '田中（開発リード）', date: '2026-05-10', content: 'データ移行のスコープは要件定義書の付属「移行対象一覧」を参照。今回の案件は過去3年分が標準。それ以上は追加見積もりが必要です。', channel: '開発部 > 案件相談' }
+    ],
+    pastEmails: [
+      { subject: 'スコープ確認のご回答（★★産業様）', date: '2025-12-05', to: '★★産業 安田様', relevance: 'データ移行範囲についての回答メール事例' }
+    ]
+  },
+  cost: {
+    fileServer: [
+      { icon: '📊', name: '競合比較_価格差説明資料.pptx', path: '\\\\fileserver\\営業資料\\競合分析\\', date: '2026-01-30', relevance: '他社との価格差を説明する際のひな形スライド' },
+      { icon: '📋', name: '弊社見積もり構成_品質保証込み説明.docx', path: '\\\\fileserver\\営業資料\\テンプレート\\価格説明\\', date: '2025-11-20', relevance: 'テスト・品質保証込みの価格説明資料' }
+    ],
+    teams: [
+      { author: '高橋（営業部長）', date: '2026-04-22', content: 'A社の見積もりは結合テスト・UAT支援がオプション扱い。その分安く見える。弊社のQA込み価格との比較表を作ると説明しやすい。', channel: '営業部 > 案件情報共有' }
+    ],
+    pastEmails: [
+      { subject: '価格差についてのご説明（●●商事様）', date: '2025-10-14', to: '●●商事 川島様', relevance: '競合他社との価格差について丁寧に説明した事例メール' }
+    ]
+  },
+  change: {
+    fileServer: [
+      { icon: '📄', name: '追加要件_変更管理手順書.docx', path: '\\\\fileserver\\開発標準\\変更管理\\', date: '2026-01-10', relevance: '追加要件の見積もり・承認フロー手順' },
+      { icon: '📊', name: '追加開発_概算見積テンプレート.xlsx', path: '\\\\fileserver\\営業資料\\テンプレート\\追加見積\\', date: '2026-02-28', relevance: '追加要件の概算を素早く算出するシート' }
+    ],
+    teams: [
+      { author: '山本（開発PM）', date: '2026-05-15', content: 'モバイル対応の工数は画面数と機能複雑度で大きく変わる。PWA対応なら既存資産が使えるので比較的安い。ネイティブは端末ごとのテストが必要で工数が膨らみやすい。', channel: '開発部 > 技術相談' }
+    ],
+    pastEmails: [
+      { subject: '追加要件のご提案（□□フーズ様）', date: '2025-08-20', to: '□□フーズ 中田様', relevance: 'モバイル追加対応を2パターン提案した事例' }
+    ]
+  },
+  contract: {
+    fileServer: [
+      { icon: '📄', name: '標準契約書_瑕疵担保条項解説.docx', path: '\\\\fileserver\\法務\\契約関連\\', date: '2025-09-01', relevance: '瑕疵担保期間・保証範囲の標準的な解釈を記載' },
+      { icon: '📋', name: '契約条件FAQ（法務確認済み）.pdf', path: '\\\\fileserver\\法務\\契約関連\\', date: '2026-03-15', relevance: 'よくある契約条件の質問と回答（法務部承認済み）' }
+    ],
+    teams: [
+      { author: '伊藤（法務）', date: '2026-03-20', content: '瑕疵担保の起算点は「最終検収完了日」が弊社標準。仕様変更後の不具合は変更後仕様に基づいて対応。変更前の既知バグは含まない。詳細はFAQ資料を参照してください。', channel: '法務部 > 全体' }
+    ],
+    pastEmails: [
+      { subject: '契約条件についてのご回答（◎◎物流様）', date: '2025-07-10', to: '◎◎物流 松田様', relevance: '瑕疵担保・保証範囲の説明メール事例（法務確認済み）' }
+    ]
+  },
+  other: {
+    fileServer: [
+      { icon: '📁', name: '営業資料フォルダ', path: '\\\\fileserver\\営業資料\\', date: '', relevance: '汎用的な営業資料・提案書テンプレート' }
+    ],
+    teams: [],
+    pastEmails: []
+  }
+};
+
+function searchRelatedInfo(id) {
+  const inq = inquiries.find(i => i.id === id);
+  const body = document.getElementById('relatedInfoBody');
+  if (!body || !inq) return;
+  body.innerHTML = `<div class="info-searching"><span class="info-search-spinner">⚙️</span>ファイルサーバー・Teams・過去メールを検索中…</div>`;
+
+  setTimeout(() => {
+    const db = RELATED_INFO_DB[inq.category] || RELATED_INFO_DB.other;
+    const estFile = inq.relatedEstimateIds ? [{
+      icon: '📊',
+      name: `${inq.relatedEstimateIds.split(' ')[0]}_${inq.clientName.replace(/株式会社|法人|合同会社/g,'').trim()}.xlsx`,
+      path: `\\\\fileserver\\見積書\\2026年\\${inq.clientName}\\`,
+      date: fmtDate(inq.createdAt),
+      relevance: '参照見積書（本件に紐づく見積）'
+    }] : [];
+
+    const files = [...estFile, ...db.fileServer];
+    const teams = db.teams;
+    const emails = db.pastEmails;
+    const total = files.length + teams.length + emails.length;
+
+    body.innerHTML = `
+      <div style="font-size:12px;color:var(--text-sub);margin-bottom:12px">
+        <span style="color:var(--success);font-weight:600">✓ 検索完了</span> — ${total}件の関連情報が見つかりました
+      </div>
+      ${files.length > 0 ? `
+      <div class="info-source-section">
+        <div class="info-source-label">📁 ファイルサーバー <span class="info-source-count">${files.length}</span></div>
+        ${files.map(f => `
+        <div class="info-source-item">
+          <div class="info-item-icon">${f.icon}</div>
+          <div class="info-item-body">
+            <div class="info-item-name">${esc(f.name)}</div>
+            <div class="info-item-path">${esc(f.path)}</div>
+            <div class="info-item-relevance">${esc(f.relevance)}</div>
+          </div>
+          ${f.date ? `<div style="font-size:11px;color:var(--text-muted);white-space:nowrap;align-self:center">${f.date}</div>` : ''}
+        </div>`).join('')}
+      </div>` : ''}
+      ${teams.length > 0 ? `
+      <div class="info-source-section">
+        <div class="info-source-label">💬 Teams チャット履歴 <span class="info-source-count">${teams.length}</span></div>
+        ${teams.map(t => `
+        <div class="info-source-item">
+          <div class="info-item-icon">💬</div>
+          <div class="info-item-body">
+            <div class="info-item-name">${esc(t.author)} — ${esc(t.channel)}</div>
+            <div class="info-item-excerpt">${esc(t.content)}</div>
+            <div class="info-item-relevance">${t.date}</div>
+          </div>
+        </div>`).join('')}
+      </div>` : ''}
+      ${emails.length > 0 ? `
+      <div class="info-source-section">
+        <div class="info-source-label">📧 過去の回答メール <span class="info-source-count">${emails.length}</span></div>
+        ${emails.map(em => `
+        <div class="info-source-item">
+          <div class="info-item-icon">📧</div>
+          <div class="info-item-body">
+            <div class="info-item-name">${esc(em.subject)}</div>
+            <div class="info-item-path">宛先: ${esc(em.to)}</div>
+            <div class="info-item-relevance">${esc(em.relevance)}</div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;align-self:center">${em.date}</div>
+        </div>`).join('')}
+      </div>` : ''}
+    `;
+  }, 1400);
+}
+
+// === AI DRAFT GENERATION ===
+const AI_DRAFTS = {
+  estimate_basis: (inq) => `${inq.clientName}\n${inq.clientContact ? inq.clientContact + ' 様\n' : ''}\nいつもお世話になっております。\n${inq.assignedTo}でございます。\n\n先日お問い合わせいただきました設計工数${inq.relatedEstimateIds ? `（${inq.relatedEstimateIds}）` : ''}に関する根拠につきまして、ご説明いたします。\n\n【設計フェーズ 工数内訳】\n─────────────────────\n■ 要件定義・現状分析：2人月\n　既存システムの調査・業務ヒアリング・要件整理\n\n■ 基本設計：3人月\n　システム方式・データベース設計・API設計\n　※ 今回はデータ移行設計を含むため標準より増\n\n■ 詳細設計：3人月\n　画面・バッチ・連携インターフェース仕様\n─────────────────────\n合計：8人月\n\n他社様との差異について：一般的に設計工数が少ない見積もりでは、結合テスト・移行計画が別途オプション扱いになっている場合がございます。弊社の見積もりにはこれらを含んでおり、後工程のリスクを最小化する構成になっております。\n\n詳細をご説明する機会をいただけますでしょうか。\nご都合の良い日時をお知らせください。\n\nよろしくお願いいたします。`,
+
+  scope: (inq) => `${inq.clientName}\n${inq.clientContact ? inq.clientContact + ' 様\n' : ''}\nいつもお世話になっております。\n${inq.assignedTo}でございます。\n\nスコープに関するご確認をいただき、ありがとうございます。\n以下のとおりご回答申し上げます。\n\n【スコープ範囲のご説明】\n─────────────────────\n■ スコープ内（対象）\n　・（ここに含まれる機能・データ範囲を記載）\n\n■ スコープ外（対象外）\n　・（ここに含まれない範囲を明記）\n\n■ 別途ご相談が必要な項目\n　・（追加費用が発生する可能性のある項目）\n─────────────────────\n\nより明確にするため、スコープ一覧表（In/Out 対応表）を作成してご送付することも可能です。ご希望でしょうか？\n\nご不明な点がございましたら、お気軽にご連絡ください。\n\nよろしくお願いいたします。`,
+
+  cost: (inq) => `${inq.clientName}\n${inq.clientContact ? inq.clientContact + ' 様\n' : ''}\nいつもお世話になっております。\n${inq.assignedTo}でございます。\n\n他社様との価格差についてご不安をお掛けしており、大変申し訳ございません。\n価格差の主な要因についてご説明いたします。\n\n【弊社見積もりに含まれる内容】\n─────────────────────\n■ 品質保証（テスト工程）\n　・単体テスト・結合テスト・受入テスト支援\n　　→ 工数：約8人月（他社ではオプション扱いのことが多い）\n\n■ 移行支援\n　・本番移行計画策定・移行リハーサル・本番移行作業\n\n■ プロジェクト管理\n　・PMO支援・週次進捗管理・リスク管理\n─────────────────────\n\n他社様の見積もりでこれらが含まれているかご確認いただけますでしょうか。含まれていない場合、後から追加すると割高になるケースが多くございます。\n\n比較表をご用意することも可能です。お申し付けください。\n\nよろしくお願いいたします。`,
+
+  change: (inq) => `${inq.clientName}\n${inq.clientContact ? inq.clientContact + ' 様\n' : ''}\nいつもお世話になっております。\n${inq.assignedTo}でございます。\n\n追加要件についてご検討いただきありがとうございます。\n概算費用を2パターンご提案いたします。\n\n【パターンA: Web対応（PWA）】\n　追加費用：約 円（詳細見積もり後確定）\n　開発期間：約 ヶ月\n　特徴：アプリインストール不要・既存システムと統合しやすい\n\n【パターンB: ネイティブアプリ（iOS/Android）】\n　追加費用：約 円（詳細見積もり後確定）\n　開発期間：約 ヶ月\n　特徴：オフライン対応・プッシュ通知など高度な機能が可能\n\n※ 上記は概算です。詳細な要件をヒアリングの上、正式見積もりを提示いたします。\n\nご希望のパターンや優先事項をお聞かせいただければ、詳細なご提案を進めます。\n\nよろしくお願いいたします。`,
+
+  contract: (inq) => `${inq.clientName}\n${inq.clientContact ? inq.clientContact + ' 様\n' : ''}\nいつもお世話になっております。\n${inq.assignedTo}でございます。\n\n契約条件に関するご質問をいただき、ありがとうございます。\n以下のとおりご回答申し上げます。\n\n【瑕疵担保責任について】\n─────────────────────\n■ 担保期間\n　・起算点：最終検収完了日\n　・期間：納品後 1年間（弊社標準）\n\n■ 保証対象範囲\n　・納品仕様書に定められた機能の不具合\n　・仕様変更が発生した場合は、変更後仕様に基づき対応\n\n■ 対象外\n　・お客様による操作ミス・環境変更に起因する不具合\n　・仕様変更前に既知であった不具合（変更前仕様の範囲外）\n─────────────────────\n\n上記は弊社の標準条件となります。特段のご要望がございましたら、個別にご相談の上対応いたします。\n\nご不明な点がございましたら、お気軽にご連絡ください。\n\nよろしくお願いいたします。`,
+
+  other: (inq) => `${inq.clientName}\n${inq.clientContact ? inq.clientContact + ' 様\n' : ''}\nいつもお世話になっております。\n${inq.assignedTo}でございます。\n\nご連絡いただきありがとうございます。\n\n（ここに回答内容を記載してください）\n\nご不明な点がございましたら、お気軽にご連絡ください。\n\nよろしくお願いいたします。`
+};
+
+function generateDraftAI(id) {
+  const inq = inquiries.find(i => i.id === id);
+  const draftArea = document.getElementById('draftArea');
+  if (!inq || !draftArea) return;
+  if (draftArea.value.trim() && !confirm('現在のドラフトを上書きして回答案を生成してよろしいですか？')) return;
+
+  draftArea.disabled = true;
+  draftArea.value = '🤖 関連情報を参照しながら回答案を生成中…';
+
+  setTimeout(() => {
+    draftArea.value = '🤖 社内メモ・過去メール・ファイルサーバーの情報を統合中…';
+  }, 900);
+
+  setTimeout(() => {
+    const gen = AI_DRAFTS[inq.category] || AI_DRAFTS.other;
+    draftArea.value = gen(inq);
+    draftArea.disabled = false;
+    draftArea.classList.add('autofill-highlight');
+    inq.responseDraft = draftArea.value;
+    showToast('🤖 AIが回答案を生成しました。内容をご確認ください。', 'success');
+  }, 2200);
+}
+
+// === TEAMS DISPATCH ===
+function buildTeamsMessage(inq) {
+  const urgencyLabel = { high: '🔴 高', medium: '🟡 中', low: '🟢 低' }[inq.urgency] || inq.urgency;
+  const deadline = inq.followUpDate ? `${inq.followUpDate} まで` : '指定なし';
+  const summary = inq.summary.slice(0, 200) + (inq.summary.length > 200 ? '…' : '');
+  return `📋 【問い合わせ対応依頼】
+━━━━━━━━━━━━━━━━━━━━━━━
+● ID：${inq.id}
+● 顧客：${inq.clientName}${inq.clientContact ? ' / ' + inq.clientContact + ' 様' : ''}
+● 件名：${inq.title}
+● 質問種別：${CATEGORIES[inq.category] || inq.category}
+● 緊急度：${urgencyLabel}
+● 回答期限：${deadline}
+${inq.relatedEstimateIds ? '● 参照見積：' + inq.relatedEstimateIds + '\n' : ''}━━━━━━━━━━━━━━━━━━━━━━━
+
+【問い合わせ内容】
+${summary}
+
+【確認依頼事項】
+1. 上記内容について技術的な根拠・補足情報をお知らせください
+2. 回答に使える資料や過去の類似事例があれば共有ください
+3. 回答案のレビューをお願いします
+
+担当営業：${inq.assignedTo}`;
+}
+
+function openDispatchModal(id) {
+  const inq = inquiries.find(i => i.id === id);
+  if (!inq) return;
+  const msg = buildTeamsMessage(inq);
+  const body = document.getElementById('dispatchModalBody');
+  body.innerHTML = `
+    <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:13px;color:var(--text-sub)">送信先:</span>
+      <span class="teams-channel-badge">💬 開発部 > 案件相談</span>
+    </div>
+    <div class="teams-preview">
+      <div class="teams-preview-header">
+        <span>🟦</span>
+        <span>Microsoft Teams — 開発部 > 案件相談</span>
+      </div>
+      <div class="teams-preview-body" id="teamsPreviewBody">${esc(msg)}</div>
+    </div>
+    <div style="margin-top:8px;margin-bottom:16px">
+      <label style="font-size:12px;color:var(--text-sub)">メッセージ編集:</label>
+      <textarea style="width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;resize:vertical;min-height:80px;outline:none" id="dispatchEditArea">${esc(msg)}</textarea>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn btn-secondary" onclick="closeModal('dispatchModal')">キャンセル</button>
+      <button class="dispatch-btn" onclick="sendDispatch('${id}')">📤 Teams で送信する</button>
+    </div>`;
+
+  const editArea = body.querySelector('#dispatchEditArea');
+  if (editArea) {
+    editArea.addEventListener('input', () => {
+      const preview = document.getElementById('teamsPreviewBody');
+      if (preview) preview.textContent = editArea.value;
+    });
+  }
+  document.getElementById('dispatchModal').classList.add('open');
+}
+
+function sendDispatch(id) {
+  const inq = inquiries.find(i => i.id === id);
+  const editArea = document.getElementById('dispatchEditArea');
+  if (!inq) return;
+  const sentMsg = editArea ? editArea.value : buildTeamsMessage(inq);
+  const body = document.getElementById('dispatchModalBody');
+  body.innerHTML = `<div class="ai-processing">
+    <div class="ai-spinner">📤</div>
+    <div class="ai-label">Teams に送信中…</div>
+  </div>`;
+  setTimeout(() => {
+    body.innerHTML = `<div class="dispatch-sent">✅ Teams「開発部 > 案件相談」に送信しました</div>
+    <div style="margin-top:12px;font-size:12px;color:var(--text-sub);text-align:center">このウィンドウを閉じると、社内メモに送信ログが記録されます。</div>
+    <div style="display:flex;justify-content:center;margin-top:16px">
+      <button class="btn btn-primary" onclick="finalizeDispatch('${id}')">閉じる</button>
+    </div>`;
+  }, 1500);
+}
+
+function finalizeDispatch(id) {
+  const inq = inquiries.find(i => i.id === id);
+  if (inq) {
+    const now = new Date().toISOString().slice(0, 16);
+    inq.internalNotes.push({
+      at: now,
+      author: inq.assignedTo,
+      text: '📤 Teams「開発部 > 案件相談」に対応依頼を送信しました。回答を待ちます。'
+    });
+    inq.updatedAt = now;
+  }
+  closeModal('dispatchModal');
+  renderDetail(id);
+  showToast('Teams への送信ログをメモに記録しました', 'success');
+}
+
+// === EMAIL MODAL ===
+const MOCK_EMAILS = [
+  {
+    from: 'kimura@tozai-hd.co.jp',
+    fromName: '木村 誠（株式会社東西ホールディングス）',
+    subject: 'Re: 基幹システム刷新の御見積もりについて（ご確認事項）',
+    preview: '先日ご提出いただいた見積書（EST-2026-031）を社内で確認いたしました。設計フェーズが8人月と記載されておりますが、...',
+    date: '2026-06-06 09:32',
+    body: `先日ご提出いただいた見積書（EST-2026-031 v2.1）を社内で確認いたしました。\n\n設計フェーズが8人月と記載されておりますが、以前他社で実施した類似規模の案件では4人月程度だったと聞いております。今回なぜ倍の工数になっているのか、具体的な根拠をご説明いただけますでしょうか。\n\n来週水曜日（6/11）の役員報告前にご回答いただけますと幸いです。\n\nよろしくお願いいたします。\n\n---\n木村 誠\n株式会社東西ホールディングス 経営企画部\nkimura@tozai-hd.co.jp / 03-1111-2222`,
+    extracted: {
+      clientName: '株式会社東西ホールディングス',
+      clientContact: '木村 誠',
+      clientEmail: 'kimura@tozai-hd.co.jp',
+      clientPhone: '03-1111-2222',
+      incomingChannel: 'email',
+      category: 'estimate_basis',
+      title: '基幹システム刷新 — 設計8人月の根拠説明を求められた',
+      summary: '見積書（EST-2026-031 v2.1）の設計フェーズ8人月について根拠説明を求められた。\n先方は「類似規模の他社案件では4人月程度」と認識しており、倍になっている理由を確認したい。\n来週水曜（6/11）の役員報告前に回答が欲しいとのこと。',
+      urgency: 'high',
+      desiredDeadline: '2026-06-11',
+      estimatedBudget: '',
+      relatedEstimateIds: 'EST-2026-031 v2.1',
+      followUpDate: '2026-06-09'
+    }
+  },
+  {
+    from: 'maruyama@maruyama-mfg.co.jp',
+    fromName: '丸山 浩二（丸山製造株式会社）',
+    subject: '生産管理システム見積もりに関するお問い合わせ',
+    preview: 'お世話になっております。先日ご送付いただいた見積書（EST-2026-028）を拝見いたしました。データ移行について確認させてください。...',
+    date: '2026-06-05 16:48',
+    body: `お世話になっております。丸山製造株式会社、丸山でございます。\n\n先日ご送付いただいた見積書（EST-2026-028 v1.3）を拝見いたしました。\n「データ移行」の項目が記載されておりますが、移行対象の範囲が不明確です。具体的には、過去10年分の生産実績データ（約500万件）が対象に含まれるかどうかご確認いただけますでしょうか。\n\nまた、移行前のデータクレンジング（重複・欠損レコードの整理）はどちらが実施するのかについてもお教えください。\n\nお手数ですが、ご確認のほどよろしくお願いいたします。\n\n---\n丸山 浩二\n丸山製造株式会社 IT推進室\nmaruyama@maruyama-mfg.co.jp`,
+    body_short: '先日ご送付いただいた見積書のデータ移行範囲について確認させてください...',
+    extracted: {
+      clientName: '丸山製造株式会社',
+      clientContact: '丸山 浩二',
+      clientEmail: 'maruyama@maruyama-mfg.co.jp',
+      clientPhone: '',
+      incomingChannel: 'email',
+      category: 'scope',
+      title: '生産管理システム刷新 — データ移行のスコープ確認',
+      summary: '見積書（EST-2026-028 v1.3）のデータ移行範囲について問い合わせあり。\n・過去10年分の生産実績データ（約500万件）が移行対象に含まれるか\n・移行前のデータクレンジング（重複・欠損整理）はどちらが担当するか',
+      urgency: 'medium',
+      desiredDeadline: '',
+      estimatedBudget: '',
+      relatedEstimateIds: 'EST-2026-028 v1.3',
+      followUpDate: '2026-06-12'
+    }
+  },
+  {
+    from: 'goto@fourleaf.co.jp',
+    fromName: '後藤 明子（株式会社フォーリーフ）',
+    subject: '追加要件のご相談（スマートフォン対応）',
+    preview: 'いつもお世話になっております。先日ご提案いただいたERPシステムに関連して、追加でご相談がございます。...',
+    date: '2026-06-06 08:15',
+    body: `いつもお世話になっております。株式会社フォーリーフ、後藤でございます。\n\n先日ご提案いただいたERPシステム（EST-2026-007）に関連して、追加でご相談がございます。\n\n当初のスコープには含まれていなかったのですが、スマートフォンからの承認ワークフロー操作が必要という社内要件が出てまいりました。対象は「購買承認」と「経費精算承認」の2業務です。\n\niOSとAndroid両対応が必要ですが、ネイティブアプリとWebアプリ（レスポンシブ）どちらが良いか判断できておりません。追加費用・期間の目安をお教えいただけますでしょうか。\n\nなお、追加予算としては500万円程度を想定しております。\n\n---\n後藤 明子\n株式会社フォーリーフ 取締役CIO\ngoto@fourleaf.co.jp / 03-9999-0000`,
+    extracted: {
+      clientName: '株式会社フォーリーフ',
+      clientContact: '後藤 明子',
+      clientEmail: 'goto@fourleaf.co.jp',
+      clientPhone: '03-9999-0000',
+      incomingChannel: 'email',
+      category: 'change',
+      title: 'ERP刷新 — スマートフォン対応（承認ワークフロー）追加要件の費用確認',
+      summary: '当初スコープ外の「スマートフォンからの承認ワークフロー」追加について問い合わせあり。\n対象業務: 購買承認・経費精算承認（2業務）\niOS / Android両対応が必要。ネイティブ or レスポンシブは先方未決定。\n追加予算目安: 〜500万円。費用・期間の見通しを求めている。',
+      urgency: 'medium',
+      desiredDeadline: '',
+      estimatedBudget: '〜500万円（追加分）',
+      relatedEstimateIds: 'EST-2026-007 v4.1',
+      followUpDate: '2026-06-13'
+    }
+  }
+];
+
+const MOCK_RECORDINGS = [
+  {
+    label: '2026-06-05 14:22　丸山製造株式会社・丸山様（15分32秒）',
+    transcript: `[担当: 田中] もしもし、株式会社〇〇の田中です。いつもお世話になっております。\n[先方: 丸山] あ、田中さん。丸山製造の丸山です。先日の見積もりの件でご連絡しました。\n[担当: 田中] はい、ありがとうございます。何かご不明な点がございましたか？\n[先方: 丸山] そうなんです。見積書のテスト工程のところなんですが、結合テストが3人月となっているんですが、前回やっていただいた生産ラインのプロジェクトでは1.5人月だったと思うんですよ。今回なぜ倍になっているのか教えてもらえますか？\n[担当: 田中] ご指摘ありがとうございます。今回はPLC（プログラマブルロジックコントローラー）との連携テストが追加されておりまして、実機を使ったテスト環境の準備と調整でおよそ1人月増えております。さらに、24時間稼働が要件に含まれているため夜間のテストも必要で、こちらで0.5人月増となっております。\n[先方: 丸山] ああ、なるほど。PLCのテストは確かに我々も気になっていたところです。それは納得できますね。文書で説明書きをいただけますか？\n[担当: 田中] もちろんです。本日中に説明書を作成してメールでお送りします。\n[先方: 丸山] ありがとうございます。あと、納期については6月末までに契約できますか？\n[担当: 田中] 確認いたします。折り返しご連絡させていただきます。`,
+    extracted: {
+      clientName: '丸山製造株式会社',
+      clientContact: '丸山 浩二',
+      clientEmail: 'maruyama@maruyama-mfg.co.jp',
+      clientPhone: '',
+      incomingChannel: 'phone',
+      category: 'estimate_basis',
+      title: '生産ラインシステム — 結合テスト3人月の根拠説明（電話）',
+      summary: '結合テストが前回比+1.5人月（3人月）の根拠について問い合わせあり。\n増加理由: PLC連携の実機テスト環境準備・調整（+1人月）、24時間稼働要件による夜間テスト（+0.5人月）。\n先方は説明に納得。文書での説明書送付を求めている。\n追加確認事項: 6月末までの契約可否 → 折り返し連絡が必要。',
+      urgency: 'medium',
+      desiredDeadline: '2026-06-30',
+      estimatedBudget: '',
+      relatedEstimateIds: 'EST-2026-014 v2.0',
+      followUpDate: '2026-06-07'
+    }
+  },
+  {
+    label: '2026-06-06 10:05　株式会社ノースウィンド・遠藤様（8分47秒）',
+    transcript: `[担当: 佐藤] お電話ありがとうございます。佐藤でございます。\n[先方: 遠藤] ノースウィンドの遠藤です。いつもお世話になっています。あの、以前ご提案いただいた販売管理システムの刷新の件なんですが。\n[担当: 佐藤] はい、遠藤さん。ありがとうございます。\n[先方: 遠藤] 実は他社さんからも見積もりをとってみたんですが、御社より2,000万円ほど低い金額が出てきたんですよ。機能的には同じように見えるんですが、なぜこんなに差があるのか教えていただけますか？\n[担当: 佐藤] ご確認いただきありがとうございます。具体的にはどちらの会社様のお見積もりでしょうか？\n[先方: 遠藤] A社さんです。\n[担当: 佐藤] わかりました。少し確認させてください。A社さんの見積書をご共有いただくことは可能でしょうか？比較してご説明できると思うのですが。\n[先方: 遠藤] うーん、それはちょっと難しいかもしれません。\n[担当: 佐藤] 承知しました。では、A社さんのお見積もりにテスト工程は含まれておりましたか？\n[先方: 遠藤] テスト工程…ちょっとわからないですね。そこは確認していなかったです。\n[担当: 佐藤] 弊社のお見積もりには結合テストと受入テストの支援が含まれております。こちらだけで8人月ほどになります。A社さんはそこを別途オプション扱いにしている可能性があります。一度確認いただいたうえで、改めてご説明の機会をいただけますでしょうか。\n[先方: 遠藤] わかりました。確認してみます。来週もう一度話しましょう。`,
+    extracted: {
+      clientName: '株式会社ノースウィンド',
+      clientContact: '遠藤 早苗',
+      clientEmail: 'endo@northwind.co.jp',
+      clientPhone: '011-555-6666',
+      incomingChannel: 'phone',
+      category: 'cost',
+      title: '販売管理刷新 — 競合他社（A社）と2,000万円の価格差について（電話）',
+      summary: '競合A社の見積もりが弊社より約2,000万円低いとの連絡。先方は「機能的に同等に見える」と認識。\n競合見積書の共有は難しいとのこと。\nA社のテスト工程の取り扱いを確認するよう促した。弊社見積もりには結合テスト+受入テスト支援（8人月）が含まれており、A社がオプション扱いにしている可能性が高い。\n来週改めて説明の機会をもらう予定。',
+      urgency: 'high',
+      desiredDeadline: '',
+      estimatedBudget: '',
+      relatedEstimateIds: 'EST-2026-019 v3.0',
+      followUpDate: '2026-06-13'
+    }
+  }
+];
+
+function openEmailModal() {
+  const body = document.getElementById('emailModalBody');
+  body.innerHTML = MOCK_EMAILS.map((m, i) => `
+    <div class="email-item" onclick="selectEmail(${i})">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span class="unread-dot"></span>
+        <span class="email-from">${esc(m.fromName)}</span>
+      </div>
+      <div class="email-subject">${esc(m.subject)}</div>
+      <div class="email-preview">${esc(m.preview)}</div>
+      <div class="email-footer">
+        <span class="email-date">${m.date}</span>
+        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();selectEmail(${i})">この件を起票する →</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('emailModal').classList.add('open');
+}
+
+function selectEmail(idx) {
+  const email = MOCK_EMAILS[idx];
+  const body = document.getElementById('emailModalBody');
+  const steps = [
+    { icon: '📨', text: '送信者情報を取得' },
+    { icon: '📝', text: '件名・本文を解析' },
+    { icon: '🏢', text: '会社名・担当者を特定' },
+    { icon: '🤖', text: 'AIが質問種別・重要度を判定' },
+    { icon: '✅', text: 'フォームへの入力データを生成' }
+  ];
+  body.innerHTML = `<div class="ai-processing">
+    <div class="ai-spinner">⚙️</div>
+    <div class="ai-label">AIがメール内容を解析中…</div>
+    <div class="ai-steps">${steps.map((s,i) => `<div class="ai-step" id="estep${i}"><span class="step-icon">⏳</span><span>${s.text}</span></div>`).join('')}</div>
+  </div>`;
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i > 0) {
+      const prev = document.getElementById(`estep${i-1}`);
+      if (prev) { prev.className = 'ai-step done'; prev.querySelector('.step-icon').textContent = '✓'; }
+    }
+    const cur = document.getElementById(`estep${i}`);
+    if (cur) { cur.className = 'ai-step active'; cur.querySelector('.step-icon').textContent = steps[i].icon; }
+    i++;
+    if (i >= steps.length) {
+      clearInterval(interval);
+      setTimeout(() => {
+        const last = document.getElementById(`estep${steps.length-1}`);
+        if (last) { last.className = 'ai-step done'; last.querySelector('.step-icon').textContent = '✓'; }
+        setTimeout(() => {
+          closeModal('emailModal');
+          prefillFormAndNavigate(email.extracted, 'email');
+        }, 400);
+      }, 500);
+    }
+  }, 600);
+}
+
+function openRecordingModal() {
+  const body = document.getElementById('recordingModalBody');
+  body.innerHTML = `
+    <p style="font-size:13px;color:var(--text-sub);margin-bottom:14px">通話録音ファイルをアップロードすると、自動で文字起こし・解析して問い合わせを起票します。</p>
+    <div style="margin-bottom:20px">
+      <div style="font-size:12px;font-weight:700;color:var(--text-sub);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">過去の録音ファイル（サンプル）</div>
+      ${MOCK_RECORDINGS.map((r,i) => `
+        <div class="email-item" onclick="selectRecording(${i})">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <span style="font-size:16px">🎙️</span>
+            <span style="font-size:13px;font-weight:600">${esc(r.label)}</span>
+          </div>
+          <div class="email-footer">
+            <span></span>
+            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();selectRecording(${i})">この録音から起票 →</button>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="upload-zone" onclick="triggerFileUpload()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')">
+      <div class="upload-zone-icon">🎙️</div>
+      <div class="upload-zone-text">録音ファイルをドロップ、または選択</div>
+      <div class="upload-zone-hint">アップロード後に自動で文字起こし・解析します</div>
+      <div class="upload-formats">
+        <span class="format-tag">.mp3</span><span class="format-tag">.wav</span><span class="format-tag">.m4a</span><span class="format-tag">.ogg</span>
+      </div>
+    </div>
+    <input type="file" id="audioFileInput" accept="audio/*" style="display:none" onchange="handleFileUpload(this)">`;
+  document.getElementById('recordingModal').classList.add('open');
+}
+
+function triggerFileUpload() {
+  document.getElementById('audioFileInput').click();
+}
+
+function handleFileUpload(input) {
+  if (input.files && input.files[0]) {
+    selectRecording(0);
+  }
+}
+
+function selectRecording(idx) {
+  const rec = MOCK_RECORDINGS[idx];
+  const body = document.getElementById('recordingModalBody');
+  const steps = [
+    { icon: '🎙️', text: '音声ファイルを受信' },
+    { icon: '📝', text: '音声を文字起こし（Whisper）' },
+    { icon: '🔍', text: 'テキストから登場人物を特定' },
+    { icon: '🤖', text: 'AIが問い合わせ内容・種別を判定' },
+    { icon: '✅', text: 'フォームへの入力データを生成' }
+  ];
+  body.innerHTML = `
+    <div class="ai-processing">
+      <div class="ai-spinner">🎙️</div>
+      <div class="ai-label">音声を解析中…</div>
+      <div class="ai-steps">${steps.map((s,i) => `<div class="ai-step" id="rstep${i}"><span class="step-icon">⏳</span><span>${s.text}</span></div>`).join('')}</div>
+    </div>
+    <div id="transcriptPreview" style="display:none;margin-top:16px">
+      <div style="font-size:12px;font-weight:700;color:var(--text-sub);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">文字起こし結果（抜粋）</div>
+      <div style="background:var(--gray-light);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--text-sub);max-height:120px;overflow-y:auto;white-space:pre-wrap;line-height:1.6">${esc(rec.transcript.slice(0,400))}…</div>
+    </div>`;
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i > 0) {
+      const prev = document.getElementById(`rstep${i-1}`);
+      if (prev) { prev.className = 'ai-step done'; prev.querySelector('.step-icon').textContent = '✓'; }
+    }
+    if (i === 1) {
+      document.querySelector('.ai-spinner').textContent = '📝';
+    }
+    if (i === 2) {
+      const tp = document.getElementById('transcriptPreview');
+      if (tp) tp.style.display = 'block';
+      document.querySelector('.ai-spinner').textContent = '🤖';
+    }
+    const cur = document.getElementById(`rstep${i}`);
+    if (cur) { cur.className = 'ai-step active'; cur.querySelector('.step-icon').textContent = steps[i].icon; }
+    i++;
+    if (i >= steps.length) {
+      clearInterval(interval);
+      setTimeout(() => {
+        const last = document.getElementById(`rstep${steps.length-1}`);
+        if (last) { last.className = 'ai-step done'; last.querySelector('.step-icon').textContent = '✓'; }
+        setTimeout(() => {
+          closeModal('recordingModal');
+          prefillFormAndNavigate(rec.extracted, 'recording');
+        }, 500);
+      }, 700);
+    }
+  }, 700);
+}
+
+function prefillFormAndNavigate(data, source) {
+  navigate('new');
+  setTimeout(() => {
+    const sourceLabel = source === 'email' ? '📧 メール自動取込' : '🎙️ 録音自動起票';
+    const fields = {
+      f_clientName: data.clientName || '',
+      f_clientContact: data.clientContact || '',
+      f_clientEmail: data.clientEmail || '',
+      f_clientPhone: data.clientPhone || '',
+      f_category: data.category || 'other',
+      f_title: data.title || '',
+      f_summary: data.summary || '',
+      f_budget: data.estimatedBudget || '',
+      f_desiredDeadline: data.desiredDeadline || '',
+      f_relatedEstimate: data.relatedEstimateIds || '',
+      f_followUp: data.followUpDate || ''
+    };
+    Object.entries(fields).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = val;
+        el.classList.add('autofill-highlight');
+      }
+    });
+    if (data.incomingChannel) {
+      const radio = document.querySelector(`input[name=channel][value="${data.incomingChannel}"]`);
+      if (radio) radio.checked = true;
+    }
+    if (data.urgency) {
+      const radio = document.querySelector(`input[name=urgency][value="${data.urgency}"]`);
+      if (radio) radio.checked = true;
+    }
+    // バッジを「タイトル」の横に追加
+    const titleLabel = document.querySelector('label[for=f_title]') || document.querySelector('.form-label:nth-of-type(2)');
+    const titleGroup = document.getElementById('f_title')?.closest('.form-group');
+    if (titleGroup) {
+      const existing = titleGroup.querySelector('.autofill-badge');
+      if (!existing) {
+        const badge = document.createElement('span');
+        badge.className = 'autofill-badge';
+        badge.innerHTML = `✨ ${sourceLabel}`;
+        badge.style.display = 'inline-flex';
+        titleGroup.querySelector('.form-label').appendChild(badge);
+      }
+    }
+    showToast(`${sourceLabel}：フォームに自動入力しました`, 'success');
+  }, 100);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+function closeModalOnOverlay(e, id) {
+  if (e.target === document.getElementById(id)) closeModal(id);
+}
+
+// === TOAST ===
+function showToast(msg, type = '') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast' + (type ? ' ' + type : '');
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 2800);
+}
+
+// === UTILS ===
+function switchInfoTab(id, btn) {
+  document.querySelectorAll('.info-tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.info-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function fmtDate(dt) {
+  if (!dt) return '—';
+  return dt.slice(0, 10);
+}
+function fmtDateTime(dt) {
+  if (!dt) return '—';
+  return dt.slice(0, 16).replace('T', ' ');
+}
+</script>
+</body>
+</html>
