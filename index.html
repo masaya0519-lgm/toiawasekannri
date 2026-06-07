@@ -1919,9 +1919,7 @@ function renderDetail(id) {
             <div class="section-card-header">
               <span class="content-box-title">TODO</span>
             </div>
-            <div class="section-card-body" id="todoBody">
-              ${renderTodosHtml(id)}
-            </div>
+            <div class="section-card-body" id="todoBody"></div>
           </div>
 
           <div class="section-card">
@@ -1994,7 +1992,11 @@ function renderDetail(id) {
         </div>
       </div>
     </div>`;
-  setTimeout(() => searchRelatedInfo(id), 100);
+  setTimeout(() => {
+    const tb = document.getElementById('todoBody');
+    if (tb) tb.innerHTML = renderTodosHtml(id);
+    searchRelatedInfo(id);
+  }, 50);
 }
 
 // === TODO ===
