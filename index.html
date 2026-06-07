@@ -1074,6 +1074,77 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 
     <!-- 使い方 -->
     <div class="info-tab-panel active" id="tab-usage">
+
+      <!-- コンセプト -->
+      <div style="background:linear-gradient(135deg,#1e3a8a,#3730a3);color:white;border-radius:12px;padding:24px 28px;margin-bottom:28px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.1em;opacity:.7;text-transform:uppercase;margin-bottom:8px">このツールのコンセプト</div>
+        <div style="font-size:18px;font-weight:700;line-height:1.5;margin-bottom:8px">問い合わせ対応をチームの仕事にする</div>
+        <div style="font-size:13px;opacity:.85;line-height:1.7">個人の頭・メール・チャットに閉じていた問い合わせ対応を、チーム全体で可視化・分担・記録できる仕組みに変える。</div>
+      </div>
+
+      <!-- 課題 -->
+      <div style="margin-bottom:28px">
+        <div style="font-size:13px;font-weight:700;color:var(--text-sub);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">解決する課題</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:14px 16px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">受付・起票に時間がかかる</div>
+            <div style="font-size:12px;color:var(--text-sub);line-height:1.6">メール・電話ごとに手動で情報を整理・入力する作業に追われ、本来の対応が後回しになる</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:14px 16px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">回答に必要な情報が散在している</div>
+            <div style="font-size:12px;color:var(--text-sub);line-height:1.6">ファイルサーバー・Teamsチャット・過去メール・見積書……どこに何があるか探し回るだけで時間が消える</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:14px 16px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">対応状況が見えない</div>
+            <div style="font-size:12px;color:var(--text-sub);line-height:1.6">誰がどの問い合わせを持っているか、今どこまで進んでいるかがチームで共有されていない</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #06b6d4;border-radius:8px;padding:14px 16px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">フォローアップが漏れる</div>
+            <div style="font-size:12px;color:var(--text-sub);line-height:1.6">担当者の記憶やメールフラグ頼みで、期限を過ぎても対応されない問い合わせが発生する</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:14px 16px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">ナレッジが個人に閉じる</div>
+            <div style="font-size:12px;color:var(--text-sub);line-height:1.6">過去の類似問い合わせへの対応ノウハウが特定の担当者の頭・メールにしか残らない</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 効果 -->
+      <div style="margin-bottom:28px">
+        <div style="font-size:13px;font-weight:700;color:var(--text-sub);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">期待できる効果</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
+            <div style="font-size:22px;flex-shrink:0">⚡</div>
+            <div><div style="font-weight:700;font-size:13px;margin-bottom:3px">受付から起票まで自動化 — 作業時間を大幅削減</div><div style="font-size:12px;color:var(--text-sub);line-height:1.6">メールは自動検知して解析・起票。電話録音は文字起こしから自動入力。担当者がキーボードを叩く時間を最小化する。</div></div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
+            <div style="font-size:22px;flex-shrink:0">🔍</div>
+            <div><div style="font-weight:700;font-size:13px;margin-bottom:3px">関連情報を自動収集 — 調査時間を短縮</div><div style="font-size:12px;color:var(--text-sub);line-height:1.6">問い合わせを開いた瞬間、関連ファイル・過去のやり取り・類似問い合わせが自動で集まる。探す時間がゼロに近づく。</div></div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
+            <div style="font-size:22px;flex-shrink:0">🤖</div>
+            <div><div style="font-weight:700;font-size:13px;margin-bottom:3px">AI回答案の自動生成 — ドラフト作成時間を短縮</div><div style="font-size:12px;color:var(--text-sub);line-height:1.6">問い合わせ種別・内容をもとにAIが回答文のドラフトを生成。担当者は「確認・修正・送信」に集中できる。</div></div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px">
+            <div style="font-size:22px;flex-shrink:0">👥</div>
+            <div><div style="font-weight:700;font-size:13px;margin-bottom:3px">TODO・ステータス管理 — チームで分担・抜け漏れ防止</div><div style="font-size:12px;color:var(--text-sub);line-height:1.6">担当者・期限付きのTODOを問い合わせに紐付け。Teamsで通知・操作できるため、管理画面を開かなくても対応できる。</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 実現する世界 -->
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:20px 24px;margin-bottom:28px">
+        <div style="font-size:13px;font-weight:700;color:#166534;margin-bottom:10px">🌏 実現する世界</div>
+        <div style="font-size:13px;color:#166534;line-height:1.8">
+          問い合わせへの対応が「誰かがどこかで処理している」状態から、<strong>チーム全体で透明に進捗が見える仕事</strong>に変わる。<br>
+          過去の対応履歴・回答ノウハウ・関連情報がシステムに蓄積されることで、<strong>次の担当者がゼロから調べ直す必要がなくなる</strong>。<br>
+          コンサルタント・営業担当者が問い合わせ処理の雑務から解放され、<strong>クライアントへの本質的な提案・関係構築に時間を使える</strong>ようになる。
+        </div>
+      </div>
+
+      <hr class="divider" style="margin-bottom:24px">
+      <div style="font-size:13px;font-weight:700;color:var(--text-sub);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px">操作手順</div>
+
       <div class="info-step">
         <div class="info-step-num">1</div>
         <div class="info-step-body">
