@@ -1720,11 +1720,6 @@ function kanbanDrop(e, newStatus) {
   if (!dragId) return;
   const inq = inquiries.find(i => i.id === dragId);
   if (!inq || inq.status === newStatus) return;
-  const allowed = STATUS_TRANSITIONS[inq.status] || [];
-  if (!allowed.includes(newStatus)) {
-    showToast(`「${STATUSES[inq.status].label}」から「${STATUSES[newStatus].label}」への変更はできません`, 'error');
-    dragId = null; return;
-  }
   inq.status = newStatus;
   inq.updatedAt = new Date().toISOString().slice(0,16);
   showToast(`「${STATUSES[newStatus].label}」に変更しました`, 'success');
@@ -1841,7 +1836,7 @@ function renderDetail(id) {
     return;
   }
   const st = STATUSES[inq.status];
-  const transitions = STATUS_TRANSITIONS[inq.status];
+  const transitions = Object.keys(STATUSES).filter(s => s !== inq.status);
   const overdue = inq.followUpDate && new Date(inq.followUpDate) < new Date() && !['closed','declined'].includes(inq.status);
 
   const memoHtml = inq.internalNotes.length > 0
