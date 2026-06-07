@@ -465,6 +465,60 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   animation: modal-in 0.2s ease;
 }
 @keyframes modal-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+/* === TEAMS MOCK === */
+.teams-wrap { display:flex; height:calc(100vh - 56px); background:#f5f5f5; font-family:'Segoe UI',system-ui,sans-serif; }
+.teams-sidebar { width:60px; background:#2d2c5e; display:flex; flex-direction:column; align-items:center; padding:8px 0; gap:4px; flex-shrink:0; }
+.teams-sidebar-icon { width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; color:rgba(255,255,255,0.7); cursor:pointer; }
+.teams-sidebar-icon:hover,.teams-sidebar-icon.active { background:rgba(255,255,255,0.2); color:white; }
+.teams-channels { width:220px; background:#e8ebfa; border-right:1px solid #d0d3e8; display:flex; flex-direction:column; flex-shrink:0; overflow-y:auto; }
+.teams-channels-header { padding:12px 14px 6px; font-size:13px; font-weight:700; color:#2d2c5e; }
+.teams-channel-item { padding:6px 14px; font-size:13px; color:#444; cursor:pointer; border-radius:4px; margin:1px 6px; display:flex; align-items:center; gap:6px; }
+.teams-channel-item:hover { background:rgba(98,100,167,0.12); }
+.teams-channel-item.active { background:rgba(98,100,167,0.2); color:#2d2c5e; font-weight:600; }
+.teams-channel-item .ch-badge { background:#e03a3a; color:white; border-radius:8px; font-size:10px; padding:1px 5px; margin-left:auto; }
+.teams-main { flex:1; display:flex; flex-direction:column; min-width:0; }
+.teams-chat-header { background:white; border-bottom:1px solid #d0d3e8; padding:10px 20px; display:flex; align-items:center; gap:10px; }
+.teams-chat-header-name { font-weight:700; font-size:15px; color:#2d2c5e; }
+.teams-chat-header-sub { font-size:12px; color:#888; }
+.teams-chat-body { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:16px; }
+.teams-msg { display:flex; gap:10px; align-items:flex-start; }
+.teams-msg.user { flex-direction:row-reverse; }
+.teams-avatar { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:white; flex-shrink:0; }
+.teams-avatar.bot { background:#6264a7; }
+.teams-avatar.user1 { background:#1e8755; }
+.teams-avatar.user2 { background:#c43e1c; }
+.teams-bubble { max-width:520px; }
+.teams-msg-meta { font-size:11px; color:#888; margin-bottom:4px; }
+.teams-msg.user .teams-msg-meta { text-align:right; }
+.teams-text-bubble { background:white; border:1px solid #e0e0e0; border-radius:8px; padding:10px 14px; font-size:13px; line-height:1.5; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+.teams-msg.user .teams-text-bubble { background:#6264a7; color:white; border-color:#6264a7; }
+.ac-card { background:white; border:1px solid #e0e0e0; border-radius:8px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.08); min-width:340px; max-width:520px; }
+.ac-header { padding:10px 14px; font-weight:700; font-size:13px; color:white; display:flex; align-items:center; gap:8px; }
+.ac-header.new { background:#6264a7; }
+.ac-header.todo { background:#0e7a0d; }
+.ac-header.alert { background:#d13438; }
+.ac-header.list { background:#005a9e; }
+.ac-header.status { background:#ca5010; }
+.ac-body { padding:12px 14px; }
+.ac-row { display:flex; gap:0; padding:4px 0; border-bottom:1px solid #f0f0f0; font-size:13px; }
+.ac-row:last-child { border-bottom:none; }
+.ac-label { width:90px; color:#888; flex-shrink:0; }
+.ac-value { color:#111; font-weight:500; flex:1; }
+.ac-actions { padding:10px 14px; border-top:1px solid #f0f0f0; display:flex; gap:8px; flex-wrap:wrap; }
+.ac-btn { padding:6px 14px; border-radius:4px; font-size:12px; font-weight:600; cursor:pointer; border:none; }
+.ac-btn.primary { background:#6264a7; color:white; }
+.ac-btn.secondary { background:white; border:1px solid #6264a7; color:#6264a7; }
+.ac-btn.success { background:#0e7a0d; color:white; }
+.ac-btn.danger { background:#d13438; color:white; }
+.ac-btn:hover { opacity:.85; }
+.teams-divider { text-align:center; font-size:11px; color:#aaa; padding:4px 0; position:relative; }
+.teams-divider::before,.teams-divider::after { content:''; position:absolute; top:50%; width:45%; height:1px; background:#e0e0e0; }
+.teams-divider::before { left:0; } .teams-divider::after { right:0; }
+.teams-input-bar { background:white; border-top:1px solid #d0d3e8; padding:10px 16px; display:flex; gap:8px; align-items:center; }
+.teams-input { flex:1; border:1px solid #d0d3e8; border-radius:4px; padding:8px 12px; font-size:13px; outline:none; }
+.teams-input:focus { border-color:#6264a7; }
+.teams-send-btn { background:#6264a7; color:white; border:none; border-radius:4px; padding:8px 16px; font-size:13px; cursor:pointer; font-weight:600; }
+.teams-note { background:#fff9e6; border:1px solid #f0d080; border-radius:8px; padding:10px 14px; font-size:12px; color:#7a5c00; margin-bottom:12px; }
 /* === TODO === */
 .todo-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
 .todo-item:last-child { border-bottom:none; }
@@ -796,6 +850,7 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   <div style="display:flex;gap:8px;align-items:center">
     <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);color:white;font-size:12px" onclick="navigate('departments')">🏢 部署・担当者管理</button>
     <div style="width:1px;height:20px;background:rgba(255,255,255,0.25)"></div>
+    <button class="btn btn-secondary btn-sm" style="background:rgba(98,100,167,0.6);border-color:rgba(98,100,167,0.8);color:white" onclick="navigate('teams')">💬 Teams連携イメージ</button>
     <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);color:white" onclick="navigate('info')">ℹ️ ガイド</button>
     <button class="btn btn-secondary btn-sm" onclick="navigate('new')">＋ 新規登録</button>
   </div>
@@ -1182,6 +1237,230 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   </div>
 </div>
 
+<!-- SCREEN: TEAMS MOCK -->
+<div id="screen-teams" class="screen" style="padding:0">
+  <div class="teams-wrap">
+    <!-- Left icon sidebar -->
+    <div class="teams-sidebar">
+      <div class="teams-sidebar-icon active" title="チャット">💬</div>
+      <div class="teams-sidebar-icon" title="チーム">👥</div>
+      <div class="teams-sidebar-icon" title="カレンダー">📅</div>
+      <div class="teams-sidebar-icon" title="ファイル">📁</div>
+      <div style="flex:1"></div>
+      <div class="teams-sidebar-icon" style="background:rgba(255,255,255,0.2);color:white;font-size:14px;font-weight:700" title="ユーザー">自</div>
+    </div>
+    <!-- Channel list -->
+    <div class="teams-channels">
+      <div class="teams-channels-header">問い合わせ管理Bot</div>
+      <div style="padding:4px 14px 6px;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.05em">チャンネル</div>
+      <div class="teams-channel-item"># 一般</div>
+      <div class="teams-channel-item active">
+        # 問い合わせ通知
+        <span class="ch-badge">3</span>
+      </div>
+      <div class="teams-channel-item"># 開発依頼</div>
+      <div class="teams-channel-item"># エスカレーション</div>
+      <div style="margin-top:16px;padding:4px 14px 6px;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.05em">ダイレクトメッセージ</div>
+      <div class="teams-channel-item">🤖 問い合わせBot</div>
+    </div>
+    <!-- Main chat area -->
+    <div class="teams-main">
+      <div class="teams-chat-header">
+        <span style="font-size:18px">#</span>
+        <div>
+          <div class="teams-chat-header-name">問い合わせ通知</div>
+          <div class="teams-chat-header-sub">新規問い合わせの自動通知・ステータス操作チャンネル</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" style="margin-left:auto;font-size:12px" onclick="navigate('list')">← 管理画面に戻る</button>
+      </div>
+
+      <div class="teams-chat-body" id="teamsChatBody">
+        <div class="teams-note">⚠️ これはMOC（画面イメージ）です。実際のTeams Botとは接続されていません。クリックで動作イメージを確認できます。</div>
+
+        <div class="teams-divider">2026年6月6日</div>
+
+        <!-- Card 1: 新規問い合わせ通知 (メール) -->
+        <div class="teams-msg">
+          <div class="teams-avatar bot">Bot</div>
+          <div class="teams-bubble">
+            <div class="teams-msg-meta">問い合わせBot　09:33</div>
+            <div class="ac-card">
+              <div class="ac-header new">🔔 新規問い合わせを受信しました</div>
+              <div class="ac-body">
+                <div class="ac-row"><span class="ac-label">ID</span><span class="ac-value" style="font-family:monospace">INQ-2026-001</span></div>
+                <div class="ac-row"><span class="ac-label">緊急度</span><span class="ac-value"><span style="color:#d13438;font-weight:700">🔴 高</span></span></div>
+                <div class="ac-row"><span class="ac-label">種別</span><span class="ac-value">見積根拠確認</span></div>
+                <div class="ac-row"><span class="ac-label">タイトル</span><span class="ac-value">基幹システム刷新 — 設計8人月の根拠説明</span></div>
+                <div class="ac-row"><span class="ac-label">会社・部署</span><span class="ac-value">ABC株式会社 ／ 経営企画部</span></div>
+                <div class="ac-row"><span class="ac-label">担当者</span><span class="ac-value">木村 誠 様</span></div>
+                <div class="ac-row"><span class="ac-label">受付経路</span><span class="ac-value">📧 メール自動検知</span></div>
+                <div class="ac-row"><span class="ac-label">フォロー期限</span><span class="ac-value" style="color:#d13438">2026-06-09</span></div>
+              </div>
+              <div class="ac-actions">
+                <button class="ac-btn primary" onclick="teamsAction('detail')">📋 詳細を見る</button>
+                <button class="ac-btn secondary" onclick="teamsAction('assign')">🙋 自分にアサイン</button>
+                <button class="ac-btn success" onclick="teamsAction('start')">▶ 対応開始</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User message -->
+        <div class="teams-msg user">
+          <div class="teams-avatar user1">田</div>
+          <div class="teams-bubble">
+            <div class="teams-msg-meta">田中 一郎　09:35</div>
+            <div class="teams-text-bubble">自分にアサインしました。調査します。</div>
+          </div>
+        </div>
+
+        <!-- Card 2: ステータス変更通知 -->
+        <div class="teams-msg">
+          <div class="teams-avatar bot">Bot</div>
+          <div class="teams-bubble">
+            <div class="teams-msg-meta">問い合わせBot　09:35</div>
+            <div class="ac-card">
+              <div class="ac-header status">🔄 ステータスが更新されました</div>
+              <div class="ac-body">
+                <div class="ac-row"><span class="ac-label">ID</span><span class="ac-value" style="font-family:monospace">INQ-2026-001</span></div>
+                <div class="ac-row"><span class="ac-label">変更前</span><span class="ac-value" style="color:#888">新規受付</span></div>
+                <div class="ac-row"><span class="ac-label">変更後</span><span class="ac-value" style="color:#d97706;font-weight:700">社内確認中</span></div>
+                <div class="ac-row"><span class="ac-label">担当者</span><span class="ac-value">田中 一郎</span></div>
+                <div class="ac-row"><span class="ac-label">更新日時</span><span class="ac-value">2026-06-06 09:35</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="teams-divider">2026年6月7日</div>
+
+        <!-- Card 3: TODO割り当て通知 -->
+        <div class="teams-msg">
+          <div class="teams-avatar bot">Bot</div>
+          <div class="teams-bubble">
+            <div class="teams-msg-meta">問い合わせBot　09:02 （ダイレクトメッセージ）</div>
+            <div class="ac-card">
+              <div class="ac-header todo">✅ TODOが割り当てられました</div>
+              <div class="ac-body">
+                <div class="ac-row"><span class="ac-label">タスク</span><span class="ac-value">EST-2026-031の設計工程詳細を山本さんに確認</span></div>
+                <div class="ac-row"><span class="ac-label">問い合わせ</span><span class="ac-value" style="font-family:monospace">INQ-2026-001</span></div>
+                <div class="ac-row"><span class="ac-label">期限</span><span class="ac-value" style="color:#d13438;font-weight:700">2026-06-09</span></div>
+                <div class="ac-row"><span class="ac-label">依頼者</span><span class="ac-value">佐藤 花子</span></div>
+              </div>
+              <div class="ac-actions">
+                <button class="ac-btn success" onclick="teamsAction('todo-done')">✓ 完了にする</button>
+                <button class="ac-btn secondary" onclick="teamsAction('detail')">📋 問い合わせを見る</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User command -->
+        <div class="teams-msg user">
+          <div class="teams-avatar user1">田</div>
+          <div class="teams-bubble">
+            <div class="teams-msg-meta">田中 一郎　10:14</div>
+            <div class="teams-text-bubble">@問い合わせBot 担当中の一覧</div>
+          </div>
+        </div>
+
+        <!-- Card 4: Bot応答 — 担当中一覧 -->
+        <div class="teams-msg">
+          <div class="teams-avatar bot">Bot</div>
+          <div class="teams-bubble">
+            <div class="teams-msg-meta">問い合わせBot　10:14</div>
+            <div class="ac-card">
+              <div class="ac-header list">📋 田中 一郎さんの担当中の問い合わせ</div>
+              <div class="ac-body">
+                <div class="ac-row" style="flex-direction:column;gap:2px;padding:8px 0">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span style="font-family:monospace;font-size:12px;color:#888">INQ-2026-001</span>
+                    <span style="background:#d97706;color:white;font-size:11px;padding:2px 7px;border-radius:4px">社内確認中</span>
+                  </div>
+                  <div style="font-weight:600;font-size:13px">基幹システム刷新 — 設計8人月の根拠説明</div>
+                  <div style="font-size:12px;color:#888">期限: 2026-06-09 ｜ TODO 2件</div>
+                </div>
+                <div class="ac-row" style="flex-direction:column;gap:2px;padding:8px 0">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span style="font-family:monospace;font-size:12px;color:#888">INQ-2026-006</span>
+                    <span style="background:#0d9488;color:white;font-size:11px;padding:2px 7px;border-radius:4px">回答済み</span>
+                  </div>
+                  <div style="font-weight:600;font-size:13px">生産ラインシステム — 結合テスト3人月の根拠</div>
+                  <div style="font-size:12px;color:#888">回答済み ｜ TODO 0件</div>
+                </div>
+              </div>
+              <div class="ac-actions">
+                <button class="ac-btn primary" onclick="teamsAction('detail')">INQ-2026-001 を開く</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User command 2 -->
+        <div class="teams-msg user">
+          <div class="teams-avatar user2">佐</div>
+          <div class="teams-bubble">
+            <div class="teams-msg-meta">佐藤 花子　11:30</div>
+            <div class="teams-text-bubble">@問い合わせBot INQ-2026-001 ステータス 回答準備中</div>
+          </div>
+        </div>
+
+        <!-- Card 5: Bot — ステータス変更確認 -->
+        <div class="teams-msg">
+          <div class="teams-avatar bot">Bot</div>
+          <div class="teams-bubble">
+            <div class="teams-msg-meta">問い合わせBot　11:30</div>
+            <div class="ac-card">
+              <div class="ac-header status">🔄 ステータス変更の確認</div>
+              <div class="ac-body">
+                <div class="ac-row"><span class="ac-label">ID</span><span class="ac-value" style="font-family:monospace">INQ-2026-001</span></div>
+                <div class="ac-row"><span class="ac-label">変更内容</span><span class="ac-value"><span style="color:#888">社内確認中</span>　→　<span style="color:#7c3aed;font-weight:700">回答準備中</span></span></div>
+                <div style="padding:8px 0;font-size:12px;color:#888">この変更を実行しますか？</div>
+              </div>
+              <div class="ac-actions">
+                <button class="ac-btn primary" onclick="teamsAction('status-ok')">✓ 変更する</button>
+                <button class="ac-btn danger" onclick="teamsAction('status-cancel')">✕ キャンセル</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6: フォローアップ期限アラート -->
+        <div class="teams-msg">
+          <div class="teams-avatar bot">Bot</div>
+          <div class="teams-bubble">
+            <div class="teams-msg-meta">問い合わせBot　08:00 （定期通知）</div>
+            <div class="ac-card">
+              <div class="ac-header alert">⚠️ フォローアップ期限アラート</div>
+              <div class="ac-body">
+                <div style="font-size:13px;color:#111;margin-bottom:8px">本日期限を迎えた、または超過した問い合わせが <strong>2件</strong> あります。</div>
+                <div class="ac-row" style="flex-direction:column;gap:2px;padding:6px 0">
+                  <div style="font-family:monospace;font-size:12px;color:#d13438">INQ-2026-001 — 期限: 2026-06-09（本日）</div>
+                  <div style="font-size:13px">基幹システム刷新 — 設計8人月の根拠説明</div>
+                </div>
+                <div class="ac-row" style="flex-direction:column;gap:2px;padding:6px 0">
+                  <div style="font-family:monospace;font-size:12px;color:#d13438">INQ-2026-003 — 期限: 2026-06-07（超過 1日）</div>
+                  <div style="font-size:13px">販売管理刷新 — 競合他社と2,000万円の価格差</div>
+                </div>
+              </div>
+              <div class="ac-actions">
+                <button class="ac-btn primary" onclick="teamsAction('detail')">📋 一覧を確認する</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /teams-chat-body -->
+
+      <!-- Input bar -->
+      <div class="teams-input-bar">
+        <input class="teams-input" id="teamsInput" placeholder="@問い合わせBot コマンドを入力...　例）担当中の一覧 ／ INQ-2026-001 ステータス確認" onkeydown="if(event.key==='Enter')teamsInputSend()">
+        <button class="teams-send-btn" onclick="teamsInputSend()">送信</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- SCREEN: DEPARTMENTS (階層ビュー) -->
 <div id="screen-departments" class="screen">
   <div class="container" style="max-width:800px">
@@ -1556,6 +1835,8 @@ function route() {
     initForm();
   } else if (hash === 'info') {
     document.getElementById('screen-info').classList.add('active');
+  } else if (hash === 'teams') {
+    document.getElementById('screen-teams').classList.add('active');
   } else if (hash === 'departments') {
     document.getElementById('screen-departments').classList.add('active');
     renderDepartments();
@@ -2745,6 +3026,93 @@ function switchInfoTab(id, btn) {
   document.querySelectorAll('.info-tab').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
   btn.classList.add('active');
+}
+
+// === TEAMS MOCK ===
+function teamsAction(type) {
+  const msgs = {
+    'detail':        '📋 管理画面で詳細を開きます（実装時はTeamsタブまたはリンクで遷移）',
+    'assign':        '✅ 自分にアサインしました。ステータスを「社内確認中」に変更します',
+    'start':         '▶ 対応開始しました。ステータスを「社内確認中」に変更しました',
+    'todo-done':     '✓ TODOを完了にしました。依頼者に通知を送りました',
+    'status-ok':     '🔄 ステータスを「回答準備中」に変更しました。チャンネルに通知します',
+    'status-cancel': '✕ キャンセルしました。ステータスは変更されませんでした',
+  };
+  showToast(msgs[type] || '操作しました', 'success');
+}
+
+function teamsInputSend() {
+  const input = document.getElementById('teamsInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const body = document.getElementById('teamsChatBody');
+
+  const userBubble = document.createElement('div');
+  userBubble.className = 'teams-msg user';
+  userBubble.innerHTML = `
+    <div class="teams-avatar user1">自</div>
+    <div class="teams-bubble">
+      <div class="teams-msg-meta">あなた　今</div>
+      <div class="teams-text-bubble">${esc(text)}</div>
+    </div>`;
+  body.appendChild(userBubble);
+
+  input.value = '';
+
+  setTimeout(() => {
+    const botBubble = document.createElement('div');
+    botBubble.className = 'teams-msg';
+    const lower = text.toLowerCase();
+    let replyHtml = '';
+
+    if (lower.includes('一覧') || lower.includes('リスト')) {
+      replyHtml = `<div class="ac-card">
+        <div class="ac-header list">📋 現在の問い合わせ一覧（新規・対応中）</div>
+        <div class="ac-body">
+          <div class="ac-row" style="flex-direction:column;gap:2px;padding:6px 0">
+            <div style="display:flex;justify-content:space-between"><span style="font-family:monospace;font-size:12px;color:#888">INQ-2026-001</span><span style="background:#d97706;color:white;font-size:11px;padding:2px 7px;border-radius:4px">社内確認中</span></div>
+            <div style="font-size:13px;font-weight:600">基幹システム刷新 — 設計8人月の根拠説明</div>
+          </div>
+          <div class="ac-row" style="flex-direction:column;gap:2px;padding:6px 0">
+            <div style="display:flex;justify-content:space-between"><span style="font-family:monospace;font-size:12px;color:#888">INQ-2026-002</span><span style="background:#2563eb;color:white;font-size:11px;padding:2px 7px;border-radius:4px">新規受付</span></div>
+            <div style="font-size:13px;font-weight:600">生産管理システム刷新 — データ移行のスコープ確認</div>
+          </div>
+        </div>
+        <div class="ac-actions"><button class="ac-btn primary" onclick="navigate('list')">管理画面で全件確認</button></div>
+      </div>`;
+    } else if (lower.includes('ステータス') || lower.includes('status')) {
+      replyHtml = `<div class="ac-card">
+        <div class="ac-header status">🔄 ステータス変更</div>
+        <div class="ac-body">
+          <div style="font-size:13px;color:#555">コマンド例：<br><code style="background:#f0f0f0;padding:2px 6px;border-radius:3px">INQ-2026-001 ステータス 回答準備中</code></div>
+        </div>
+      </div>`;
+    } else if (lower.includes('help') || lower.includes('ヘルプ') || lower.includes('使い方')) {
+      replyHtml = `<div class="ac-card">
+        <div class="ac-header list">🤖 使えるコマンド一覧</div>
+        <div class="ac-body">
+          <div class="ac-row"><span class="ac-label" style="width:180px">担当中の一覧</span><span class="ac-value">自分がアサインされた問い合わせを表示</span></div>
+          <div class="ac-row"><span class="ac-label" style="width:180px">INQ-xxxx 詳細</span><span class="ac-value">指定IDの詳細をカードで表示</span></div>
+          <div class="ac-row"><span class="ac-label" style="width:180px">INQ-xxxx ステータス ○○</span><span class="ac-value">ステータスを変更（確認あり）</span></div>
+          <div class="ac-row"><span class="ac-label" style="width:180px">INQ-xxxx todo 追加 [内容]</span><span class="ac-value">TODOを追加して担当者に通知</span></div>
+          <div class="ac-row"><span class="ac-label" style="width:180px">今日の期限</span><span class="ac-value">本日期限のフォローアップ一覧</span></div>
+        </div>
+      </div>`;
+    } else {
+      replyHtml = `<div class="teams-text-bubble">「${esc(text)}」を受け付けました。<br><span style="font-size:12px;color:rgba(255,255,255,0.8)">ヘルプは「@問い合わせBot ヘルプ」と入力してください</span></div>`;
+    }
+
+    botBubble.innerHTML = `
+      <div class="teams-avatar bot">Bot</div>
+      <div class="teams-bubble">
+        <div class="teams-msg-meta">問い合わせBot　今</div>
+        ${replyHtml}
+      </div>`;
+    body.appendChild(botBubble);
+    body.scrollTop = body.scrollHeight;
+  }, 600);
+
+  body.scrollTop = body.scrollHeight;
 }
 
 // === DEPARTMENTS (階層ビュー) ===
