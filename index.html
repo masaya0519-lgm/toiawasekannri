@@ -465,6 +465,16 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   animation: modal-in 0.2s ease;
 }
 @keyframes modal-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+/* === TODO === */
+.todo-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+.todo-item:last-child { border-bottom:none; }
+.todo-checkbox { width:16px; height:16px; cursor:pointer; flex-shrink:0; accent-color:var(--primary); }
+.todo-title { flex:1; font-size:13px; line-height:1.4; }
+.todo-title.done { text-decoration:line-through; color:var(--text-sub); }
+.todo-meta { font-size:11px; color:var(--text-sub); white-space:nowrap; }
+.todo-meta.overdue { color:var(--danger); font-weight:600; }
+.todo-add-form { display:grid; grid-template-columns:1fr 130px 120px auto; gap:6px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+@media (max-width:700px) { .todo-add-form { grid-template-columns:1fr; } }
 /* === MASTER TABLE === */
 .master-table { width:100%; border-collapse:collapse; font-size:14px; }
 .master-table th { background:var(--bg); padding:10px 14px; text-align:left; font-size:12px; font-weight:600; color:var(--text-sub); border-bottom:2px solid var(--border); white-space:nowrap; }
@@ -1271,6 +1281,14 @@ let CONTACTS_MASTER = [
   { id: 'CNT-008', name: '渡辺 一哉', group: '購買・調達部', role: '担当者',    email: 'watanabe@abc.co.jp',   phone: '03-8888-7777' },
 ];
 
+let TODOS = [
+  { id: 'TODO-001', inquiryId: 'INQ-2026-001', title: 'EST-2026-031の設計工程詳細を山本さんに確認', assignedTo: '佐藤 花子', dueDate: '2026-06-09', done: false },
+  { id: 'TODO-002', inquiryId: 'INQ-2026-001', title: '類似案件の設計工数データを収集', assignedTo: '田中 一郎', dueDate: '2026-06-08', done: true },
+  { id: 'TODO-003', inquiryId: 'INQ-2026-003', title: 'A社見積書の入手を先方に依頼', assignedTo: '佐藤 花子', dueDate: '2026-06-10', done: false },
+  { id: 'TODO-004', inquiryId: 'INQ-2026-004', title: '要件定義書の付属資料（連携一覧）を再確認', assignedTo: '鈴木 次郎', dueDate: '2026-06-08', done: true },
+  { id: 'TODO-005', inquiryId: 'INQ-2026-004', title: 'スコープ整理チェックリストを開発と共同作成', assignedTo: '鈴木 次郎', dueDate: '2026-06-12', done: false },
+];
+
 const CATEGORIES = {
   estimate_basis: '見積根拠確認',
   scope: 'スコープ確認',
@@ -1899,6 +1917,15 @@ function renderDetail(id) {
 
           <div class="section-card">
             <div class="section-card-header">
+              <span class="content-box-title">TODO</span>
+            </div>
+            <div class="section-card-body" id="todoBody">
+              ${renderTodosHtml(id)}
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-card-header">
               <span class="content-box-title">社内メモ・確認ログ</span>
               <button class="btn btn-ghost btn-sm" onclick="focusMemoInput()">＋ メモ追加</button>
             </div>
@@ -1968,6 +1995,60 @@ function renderDetail(id) {
       </div>
     </div>`;
   setTimeout(() => searchRelatedInfo(id), 100);
+}
+
+// === TODO ===
+function renderTodosHtml(inquiryId) {
+  const today = new Date().toISOString().slice(0, 10);
+  const items = TODOS.filter(t => t.inquiryId === inquiryId);
+  const listHtml = items.length > 0 ? items.map(t => {
+    const overdue = !t.done && t.dueDate && t.dueDate < today;
+    return `<div class="todo-item" id="todo-item-${t.id}">
+      <input type="checkbox" class="todo-checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo('${t.id}','${inquiryId}')">
+      <span class="todo-title${t.done ? ' done' : ''}">${esc(t.title)}</span>
+      <span class="todo-meta${overdue ? ' overdue' : ''}">${esc(t.assignedTo)}</span>
+      <span class="todo-meta${overdue ? ' overdue' : ''}">${t.dueDate || '—'}${overdue ? ' ⚠️' : ''}</span>
+      <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:2px 6px;color:var(--text-sub)" onclick="deleteTodo('${t.id}','${inquiryId}')">✕</button>
+    </div>`;
+  }).join('') : `<p style="color:var(--text-sub);font-size:13px;margin-bottom:0">TODOはありません</p>`;
+
+  const staffOptions = INTERNAL_STAFF.map(s => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('');
+  return `${listHtml}
+    <div class="todo-add-form">
+      <input type="text" class="form-input" id="todo-title-${inquiryId}" placeholder="タスクを追加…" style="font-size:13px;padding:6px 10px">
+      <select class="form-input" id="todo-staff-${inquiryId}" style="font-size:13px;padding:6px 10px">${staffOptions}</select>
+      <input type="date" class="form-input" id="todo-due-${inquiryId}" style="font-size:13px;padding:6px 10px">
+      <button class="btn btn-primary btn-sm" onclick="addTodo('${inquiryId}')">追加</button>
+    </div>`;
+}
+
+function addTodo(inquiryId) {
+  const titleEl = document.getElementById(`todo-title-${inquiryId}`);
+  const title = titleEl ? titleEl.value.trim() : '';
+  if (!title) { titleEl && titleEl.focus(); return; }
+  const staff = document.getElementById(`todo-staff-${inquiryId}`)?.value || '';
+  const due = document.getElementById(`todo-due-${inquiryId}`)?.value || '';
+  TODOS.push({
+    id: 'TODO-' + String(Date.now()).slice(-6),
+    inquiryId,
+    title,
+    assignedTo: staff,
+    dueDate: due,
+    done: false,
+  });
+  document.getElementById('todoBody').innerHTML = renderTodosHtml(inquiryId);
+}
+
+function toggleTodo(id, inquiryId) {
+  const t = TODOS.find(x => x.id === id);
+  if (t) t.done = !t.done;
+  document.getElementById('todoBody').innerHTML = renderTodosHtml(inquiryId);
+}
+
+function deleteTodo(id, inquiryId) {
+  const idx = TODOS.findIndex(x => x.id === id);
+  if (idx !== -1) TODOS.splice(idx, 1);
+  document.getElementById('todoBody').innerHTML = renderTodosHtml(inquiryId);
 }
 
 function toggleStatusDropdown(e) {
